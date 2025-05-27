@@ -20,8 +20,8 @@
         centerY: false,
         centerZ: false,
         sizeX: 4,
-        sizeY: 4,
-        sizeZ: 4,
+        sizeY: 2,
+        sizeZ: 6,
       },
       {
         name: "Dropseat Grid",
@@ -30,7 +30,7 @@
         centerY: false,
         centerZ: false,
         sizeX: 1,
-        sizeY: 3,
+        sizeY: 2,
         sizeZ: 3,
       }
     ],
@@ -70,7 +70,6 @@
           this.setupCanvas();
 
           this.renderer.setAnimationLoop( () => {this.animate()} );
-
           this.loadGridInfo(gridInformation);
       }
 
