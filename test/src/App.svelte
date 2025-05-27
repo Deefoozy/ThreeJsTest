@@ -64,7 +64,6 @@
        * @param {{shipName: string, hangarSize: string, cargoSize: number, grids: {name: string, position: Vector3, centerX: boolean, centerY: boolean, centerZ: boolean, sizeX: number, sizeY: number, sizeZ: number}[]}} gridInformation
        */
       start(gridInformation) {
-          console.log("Starting up!")
           this.setupLighting();
           this.setupCamera();
           this.setSize(width, height);
@@ -80,11 +79,9 @@
        * @param reRender
        */
       loadGridInfo(gridInformation, reRender = false) {
-          console.log("loadGridInfo!")
           this.gridInfo = gridInformation
 
           if (reRender) {
-              console.log("re_render")
               this.clearModels()
           }
 
@@ -153,19 +150,16 @@
       }
 
       setupCanvas() {
-          console.log("setupCanvas!")
           this.canvas.appendChild(this.renderer.domElement)
       }
 
       setupLighting() {
-          console.log("setupLighting!")
           const color = 0xFFFFFF;
           const intensity = 1;
           this.scene.add(new ThreeJs.AmbientLight(color, intensity));
       }
 
       setupCamera() {
-          console.log("setupCamera!")
           this.camera.position.set(5, 5, 5)
 
           this.controls = new OrbitControls(this.camera, this.canvas);
@@ -178,7 +172,6 @@
        * @param {number} height
        */
       setSize(width, height) {
-          console.log("setSize!")
           this.width = width
           this.height = height
 
@@ -191,8 +184,6 @@
   }
 
   onMount(() => {
-    console.log("hello world")
-
     const canvasElement = document.getElementById("app_container")
     const renderer = new ThreeJs.WebGLRenderer();
     // const camera = new ThreeJs.OrthographicCamera(10, 10, 10, 10, 1, 100);
