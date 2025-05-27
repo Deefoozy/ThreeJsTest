@@ -166,10 +166,10 @@
 
       setupCamera() {
           console.log("setupCamera!")
-          this.camera.position.set(1.5, 1.5, 10)
+          this.camera.position.set(5, 5, 5)
 
           this.controls = new OrbitControls(this.camera, this.canvas);
-          this.controls.target.set(0, 5, 0);
+          this.controls.target.set(-0.5, 1, 0);
           this.controls.update();
       }
 
