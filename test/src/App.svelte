@@ -15,20 +15,16 @@
     grids: [
       {
         name: "Main grid",
-        position: new Vector3(0, 0, 0),
+        position: new Vector3(0, 0, 4),
         centerX: true,
-        centerY: false,
-        centerZ: false,
         sizeX: 4,
         sizeY: 2,
-        sizeZ: 6,
+        sizeZ: 5,
       },
       {
         name: "Dropseat Grid",
-        position: new Vector3(0, 0, -4),
+        position: new Vector3(0, 0, 0),
         centerX: true,
-        centerY: false,
-        centerZ: false,
         sizeX: 1,
         sizeY: 2,
         sizeZ: 3,
@@ -37,7 +33,7 @@
   };
 
   class ShipRenderer {
-      gridInfo = {}
+      shipGridInformation = {}
       renderedGridInfo = []
 
       canvas = null
@@ -47,6 +43,8 @@
 
       width = null
       height = null
+
+      currentGridBounds = null
 
       /**
        * @param {HTMLElement} parentElement
@@ -61,30 +59,34 @@
       }
 
       /**
-       * @param {{shipName: string, hangarSize: string, cargoSize: number, grids: {name: string, position: Vector3, centerX: boolean, centerY: boolean, centerZ: boolean, sizeX: number, sizeY: number, sizeZ: number}[]}} gridInformation
+       * @param {{shipName: string, hangarSize: string, cargoSize: number, grids: {name: string, position: Vector3, centerX: boolean, sizeX: number, sizeY: number, sizeZ: number}[]}} shipGridInformation
        */
-      start(gridInformation) {
-          this.setupLighting();
-          this.setupCamera();
-          this.setSize(width, height);
-          this.setupCanvas();
+      start(shipGridInformation) {
+        this.setupLighting();
+        this.setSize(width, height);
+        this.setupCanvas();
 
-          this.renderer.setAnimationLoop( () => {this.animate()} );
-          this.loadGridInfo(gridInformation);
+        this.renderer.setAnimationLoop( () => {this.animate()} );
+        this.loadGridInfo(shipGridInformation);
+
+        this.setupCamera();
       }
 
       /**
-       * @param {{shipName: string, hangarSize: string, cargoSize: number, grids: {name: string, position: Vector3, centerX: boolean, centerY: boolean, centerZ: boolean, sizeX: number, sizeY: number, sizeZ: number}[]}} gridInformation
+       * @param {{shipName: string, hangarSize: string, cargoSize: number, grids: {name: string, position: Vector3, centerX: boolean, sizeX: number, sizeY: number, sizeZ: number}[]}} shipGridInformation
        * @param reRender
        */
-      loadGridInfo(gridInformation, reRender = false) {
-          this.gridInfo = gridInformation
+      loadGridInfo(shipGridInformation, reRender = false) {
+          this.shipGridInformation = shipGridInformation;
+          this.currentGridBounds = ShipRenderer.determineMaxGridBounds(shipGridInformation);
+
+          console.log(this.currentGridBounds)
 
           if (reRender) {
-              this.clearModels()
+              this.clearModels();
           }
 
-          this.createModels()
+          this.createModels();
       }
 
       clearModels() {
@@ -92,28 +94,56 @@
       }
 
       /**
-       * @param {{name: string, position: Vector3, centerX: boolean, centerY: boolean, centerZ: boolean, sizeX: number, sizeY: number, sizeZ: number}} gridInformation
+       * @param {{name: string, position: Vector3, centerX: boolean, sizeX: number, sizeY: number, sizeZ: number}} gridInformation
+       * @returns {Vector3}
        */
-      determineGridOffsetVector(gridInformation) {
+      static determineGridOffsetVector(gridInformation) {
           let offsetX = 0;
           let offsetY = 0;
           let offsetZ = 0;
 
           if (gridInformation.centerX && gridInformation.centerX === true) {
-              offsetX -= gridInformation.sizeX * 0.5
+              offsetX -= gridInformation.sizeX * 0.5;
           }
 
-          return new Vector3(offsetX, offsetY, offsetZ)
+          return new Vector3(offsetX, offsetY, offsetZ);
+      }
+
+      /**
+       * @param {{shipName: string, hangarSize: string, cargoSize: number, grids: {name: string, position: Vector3, centerX: boolean, sizeX: number, sizeY: number, sizeZ: number}[]}} shipGridInformation
+       * @return {Vector3}
+       */
+      static determineMaxGridBounds(shipGridInformation) {
+        // This function does not take asymmetrical cargo grids into account!!
+        let maxX = 0;
+        let maxY = 0;
+        let maxZ = 0;
+
+        for (let i = 0, gridAmount = shipGridInformation.grids.length; i < gridAmount; ++i) {
+          const currentGrid = shipGridInformation.grids[i];
+
+          const gridXSize = currentGrid.centerX ? currentGrid.sizeX * 0.5 : currentGrid.sizeX;
+
+          const gridX = gridXSize + Math.abs(currentGrid.position.x);
+          const gridY = currentGrid.sizeY + Math.abs(currentGrid.position.y);
+          const gridZ = currentGrid.sizeZ + Math.abs(currentGrid.position.z);
+
+          maxX = gridX > maxX ? gridX : maxX;
+          maxY = gridY > maxY ? gridY : maxY;
+          maxZ = gridZ > maxZ ? gridZ : maxZ;
+        }
+
+        return new Vector3(maxX, maxY, maxZ);
       }
 
       createModels() {
-          for (let i = 0, c = this.gridInfo.grids.length; i < c; ++i) {
-              const baseInfo = this.gridInfo.grids[i];
+          for (let i = 0, c = this.shipGridInformation.grids.length; i < c; ++i) {
+              const baseInfo = this.shipGridInformation.grids[i];
 
               // create grid obj
               const gridInfo = {
                   name: baseInfo.name,
-                  offset: this.determineGridOffsetVector(baseInfo),
+                  offset: ShipRenderer.determineGridOffsetVector(baseInfo),
                   boxes: [],
               };
 
@@ -137,7 +167,7 @@
 
                   boxObject.position.set(posX, posY, posZ);
                   boxObject.position.add(baseInfo.position);
-                  boxObject.position.add(gridInfo.offset)
+                  boxObject.position.add(gridInfo.offset);
 
                   this.scene.add(boxObject);
                   gridInfo.boxes.push(boxObject);
@@ -159,10 +189,17 @@
       }
 
       setupCamera() {
-          this.camera.position.set(5, 5, 5)
+          const camDistance = Math.max(this.currentGridBounds.x * 2, this.currentGridBounds.y * 2, this.currentGridBounds.z) * 0.6
+          this.camera.position.set(camDistance, camDistance, camDistance)
 
           this.controls = new OrbitControls(this.camera, this.canvas);
-          this.controls.target.set(-0.5, 1, 0);
+
+          this.controls.target.set(
+              -0.5,
+              (this.currentGridBounds.y * 0.5),
+              (this.currentGridBounds.z * 0.5) - 0.5
+          );
+
           this.controls.update();
       }
 
@@ -171,14 +208,14 @@
        * @param {number} height
        */
       setSize(width, height) {
-          this.width = width
-          this.height = height
+        this.width = width
+        this.height = height
 
-          this.renderer.setSize(width, height)
+        this.renderer.setSize(width, height)
       }
 
       animate() {
-          this.renderer.render( this.scene, this.camera );
+        this.renderer.render( this.scene, this.camera );
       }
   }
 
