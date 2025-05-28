@@ -7,7 +7,7 @@
   const width = window.innerWidth;
   const height = window.innerHeight;
 
-  const boxSize = 0.9;
+  const boxSize = 0.5;
   const dataJson = {
     shipName: "Cutlass Black",
     hangarSize: "Medium",
@@ -33,190 +33,196 @@
   };
 
   class ShipRenderer {
-      shipGridInformation = {}
-      renderedGridInfo = []
+    shipGridInformation = {}
+    renderedGridInfo = []
 
-      canvas = null
-      renderer = null
-      camera = null
-      controls = null
+    canvas = null
+    renderer = null
+    camera = null
+    controls = null
 
-      width = null
-      height = null
+    width = null
+    height = null
 
-      currentGridBounds = null
+    currentGridBounds = null
 
-      /**
-       * @param {HTMLElement} parentElement
-       * @param {ThreeJs.WebGLRenderer} renderer
-       * @param {ThreeJs.PerspectiveCamera} camera
-       */
-      constructor(parentElement, renderer, camera) {
-          this.canvas = parentElement;
-          this.renderer = renderer;
-          this.camera = camera;
-          this.scene = new ThreeJs.Scene();
+    /**
+     * @param {HTMLElement} parentElement
+     * @param {ThreeJs.WebGLRenderer} renderer
+     * @param {ThreeJs.PerspectiveCamera} camera
+     */
+    constructor(parentElement, renderer, camera) {
+      this.canvas = parentElement;
+      this.renderer = renderer;
+      this.camera = camera;
+      this.scene = new ThreeJs.Scene();
+    }
+
+    /**
+     * @param {{shipName: string, hangarSize: string, cargoSize: number, grids: {name: string, position: Vector3, centerX: boolean, sizeX: number, sizeY: number, sizeZ: number}[]}} shipGridInformation
+     */
+    start(shipGridInformation) {
+      this.setupLighting();
+      this.setSize(width, height);
+      this.setupCanvas();
+
+      this.renderer.setAnimationLoop(() => {
+        this.animate()
+      });
+      this.loadGridInfo(shipGridInformation);
+
+      this.setupCamera();
+    }
+
+    /**
+     * @param {{shipName: string, hangarSize: string, cargoSize: number, grids: {name: string, position: Vector3, centerX: boolean, sizeX: number, sizeY: number, sizeZ: number}[]}} shipGridInformation
+     * @param reRender
+     */
+    loadGridInfo(shipGridInformation, reRender = false) {
+      this.shipGridInformation = shipGridInformation;
+      this.currentGridBounds = ShipRenderer.determineMaxGridBounds(shipGridInformation);
+
+      console.log(this.currentGridBounds)
+
+      if (reRender) {
+        this.clearModels();
       }
 
-      /**
-       * @param {{shipName: string, hangarSize: string, cargoSize: number, grids: {name: string, position: Vector3, centerX: boolean, sizeX: number, sizeY: number, sizeZ: number}[]}} shipGridInformation
-       */
-      start(shipGridInformation) {
-        this.setupLighting();
-        this.setSize(width, height);
-        this.setupCanvas();
+      this.createModels();
+    }
 
-        this.renderer.setAnimationLoop( () => {this.animate()} );
-        this.loadGridInfo(shipGridInformation);
+    clearModels() {
+      console.error("NOT IMPLEMENTED")
+    }
 
-        this.setupCamera();
+    /**
+     * @param {{name: string, position: Vector3, centerX: boolean, sizeX: number, sizeY: number, sizeZ: number}} gridInformation
+     * @returns {Vector3}
+     */
+    static determineGridOffsetVector(gridInformation) {
+      let offsetX = 0;
+      let offsetY = 0;
+      let offsetZ = 0;
+
+      if (gridInformation.centerX && gridInformation.centerX === true) {
+        offsetX -= gridInformation.sizeX * 0.5;
       }
 
-      /**
-       * @param {{shipName: string, hangarSize: string, cargoSize: number, grids: {name: string, position: Vector3, centerX: boolean, sizeX: number, sizeY: number, sizeZ: number}[]}} shipGridInformation
-       * @param reRender
-       */
-      loadGridInfo(shipGridInformation, reRender = false) {
-          this.shipGridInformation = shipGridInformation;
-          this.currentGridBounds = ShipRenderer.determineMaxGridBounds(shipGridInformation);
+      return new Vector3(offsetX, offsetY, offsetZ);
+    }
 
-          console.log(this.currentGridBounds)
+    /**
+     * @param {{shipName: string, hangarSize: string, cargoSize: number, grids: {name: string, position: Vector3, centerX: boolean, sizeX: number, sizeY: number, sizeZ: number}[]}} shipGridInformation
+     * @return {Vector3}
+     */
+    static determineMaxGridBounds(shipGridInformation) {
+      // This function does not take asymmetrical cargo grids into account!!
+      let maxX = 0;
+      let maxY = 0;
+      let maxZ = 0;
 
-          if (reRender) {
-              this.clearModels();
-          }
+      for (let i = 0, gridAmount = shipGridInformation.grids.length; i < gridAmount; ++i) {
+        const currentGrid = shipGridInformation.grids[i];
 
-          this.createModels();
+        const gridXSize = currentGrid.centerX ? currentGrid.sizeX * 0.5 : currentGrid.sizeX;
+
+        const gridX = gridXSize + Math.abs(currentGrid.position.x);
+        const gridY = currentGrid.sizeY + Math.abs(currentGrid.position.y);
+        const gridZ = currentGrid.sizeZ + Math.abs(currentGrid.position.z);
+
+        maxX = gridX > maxX ? gridX : maxX;
+        maxY = gridY > maxY ? gridY : maxY;
+        maxZ = gridZ > maxZ ? gridZ : maxZ;
       }
 
-      clearModels() {
-          console.error("NOT IMPLEMENTED")
-      }
+      return new Vector3(maxX, maxY, maxZ);
+    }
 
-      /**
-       * @param {{name: string, position: Vector3, centerX: boolean, sizeX: number, sizeY: number, sizeZ: number}} gridInformation
-       * @returns {Vector3}
-       */
-      static determineGridOffsetVector(gridInformation) {
-          let offsetX = 0;
-          let offsetY = 0;
-          let offsetZ = 0;
+    createModels() {
+      for (let i = 0, c = this.shipGridInformation.grids.length; i < c; ++i) {
+        const baseInfo = this.shipGridInformation.grids[i];
 
-          if (gridInformation.centerX && gridInformation.centerX === true) {
-              offsetX -= gridInformation.sizeX * 0.5;
-          }
+        // create grid obj
+        const gridInfo = {
+          name: baseInfo.name,
+          offset: ShipRenderer.determineGridOffsetVector(baseInfo),
+          boxes: [],
+        };
 
-          return new Vector3(offsetX, offsetY, offsetZ);
-      }
+        const boxAmt = baseInfo.sizeX * baseInfo.sizeY * baseInfo.sizeZ;
+        const layerBoxAmount = baseInfo.sizeX * baseInfo.sizeY;
 
-      /**
-       * @param {{shipName: string, hangarSize: string, cargoSize: number, grids: {name: string, position: Vector3, centerX: boolean, sizeX: number, sizeY: number, sizeZ: number}[]}} shipGridInformation
-       * @return {Vector3}
-       */
-      static determineMaxGridBounds(shipGridInformation) {
-        // This function does not take asymmetrical cargo grids into account!!
-        let maxX = 0;
-        let maxY = 0;
-        let maxZ = 0;
+        // loop through boxes and add to rGI object that was pushed
+        for (let i = 0; i < boxAmt; ++i) {
+          const tempBox = new ThreeJs.BoxGeometry(boxSize, boxSize, boxSize);
+          const boxObject = new ThreeJs.Mesh(tempBox, new ThreeJs.MeshBasicMaterial({color: 0xaaffaa}));
 
-        for (let i = 0, gridAmount = shipGridInformation.grids.length; i < gridAmount; ++i) {
-          const currentGrid = shipGridInformation.grids[i];
+          const boxNumber = i + 1;
 
-          const gridXSize = currentGrid.centerX ? currentGrid.sizeX * 0.5 : currentGrid.sizeX;
+          // figure out box pos
+          const rawPosX = (boxNumber % baseInfo.sizeX) - 1;
+          const xRowsCompleted = Math.floor(i / baseInfo.sizeX);
 
-          const gridX = gridXSize + Math.abs(currentGrid.position.x);
-          const gridY = currentGrid.sizeY + Math.abs(currentGrid.position.y);
-          const gridZ = currentGrid.sizeZ + Math.abs(currentGrid.position.z);
+          const posX = rawPosX < 0 ? baseInfo.sizeX - 1 : rawPosX;
+          const posY = (xRowsCompleted % baseInfo.sizeY);
+          const posZ = (Math.floor(i / layerBoxAmount));
 
-          maxX = gridX > maxX ? gridX : maxX;
-          maxY = gridY > maxY ? gridY : maxY;
-          maxZ = gridZ > maxZ ? gridZ : maxZ;
+          boxObject.position.set(posX, posY, posZ);
+          boxObject.position.add(baseInfo.position);
+          boxObject.position.add(gridInfo.offset);
+
+          this.scene.add(boxObject);
+          gridInfo.boxes.push(boxObject);
         }
 
-        return new Vector3(maxX, maxY, maxZ);
+        // push to rGI for later reference
+        this.renderedGridInfo.push(gridInfo)
       }
+    }
 
-      createModels() {
-          for (let i = 0, c = this.shipGridInformation.grids.length; i < c; ++i) {
-              const baseInfo = this.shipGridInformation.grids[i];
+    setupCanvas() {
+      this.canvas.appendChild(this.renderer.domElement)
+    }
 
-              // create grid obj
-              const gridInfo = {
-                  name: baseInfo.name,
-                  offset: ShipRenderer.determineGridOffsetVector(baseInfo),
-                  boxes: [],
-              };
+    setupLighting() {
+      const color = 0xFFFFFF;
+      const intensity = 1;
+      this.scene.add(new ThreeJs.AmbientLight(color, intensity));
+    }
 
-              const boxAmt = baseInfo.sizeX * baseInfo.sizeY * baseInfo.sizeZ;
-              const layerBoxAmount = baseInfo.sizeX * baseInfo.sizeY;
+    setupCamera() {
+      const centerY = this.currentGridBounds.y * 0.5;
+      const centerZ = (this.currentGridBounds.z * 0.5) - 0.5;
 
-              // loop through boxes and add to rGI object that was pushed
-              for (let i = 0; i < boxAmt; ++i) {
-                  const tempBox = new ThreeJs.BoxGeometry(boxSize, boxSize, boxSize);
-                  const boxObject = new ThreeJs.Mesh(tempBox, new ThreeJs.MeshBasicMaterial({ color: 0xaaffaa }));
+      const camDistance = Math.ceil(Math.max(this.currentGridBounds.x * 2, this.currentGridBounds.y * 2, this.currentGridBounds.z) * 0.6)
+      console.log(camDistance)
+      this.camera.position.set(camDistance, centerY + camDistance, centerZ + camDistance)
 
-                  const boxNumber = i + 1;
+      this.controls = new OrbitControls(this.camera, this.canvas);
 
-                  // figure out box pos
-                  const rawPosX = (boxNumber % baseInfo.sizeX) - 1;
-                  const xRowsCompleted = Math.floor(i / baseInfo.sizeX);
+      this.controls.target.set(
+          -0.5,
+          centerY,
+          centerZ
+      );
 
-                  const posX = rawPosX < 0 ? baseInfo.sizeX - 1 : rawPosX;
-                  const posY = (xRowsCompleted % baseInfo.sizeY);
-                  const posZ = (Math.floor(i / layerBoxAmount));
+      this.controls.update();
+    }
 
-                  boxObject.position.set(posX, posY, posZ);
-                  boxObject.position.add(baseInfo.position);
-                  boxObject.position.add(gridInfo.offset);
+    /**
+     * @param {number} width
+     * @param {number} height
+     */
+    setSize(width, height) {
+      this.width = width
+      this.height = height
 
-                  this.scene.add(boxObject);
-                  gridInfo.boxes.push(boxObject);
-              }
+      this.renderer.setSize(width, height)
+    }
 
-              // push to rGI for later reference
-              this.renderedGridInfo.push(gridInfo)
-          }
-      }
-
-      setupCanvas() {
-          this.canvas.appendChild(this.renderer.domElement)
-      }
-
-      setupLighting() {
-          const color = 0xFFFFFF;
-          const intensity = 1;
-          this.scene.add(new ThreeJs.AmbientLight(color, intensity));
-      }
-
-      setupCamera() {
-          const camDistance = Math.max(this.currentGridBounds.x * 2, this.currentGridBounds.y * 2, this.currentGridBounds.z) * 0.6
-          this.camera.position.set(camDistance, camDistance, camDistance)
-
-          this.controls = new OrbitControls(this.camera, this.canvas);
-
-          this.controls.target.set(
-              -0.5,
-              (this.currentGridBounds.y * 0.5),
-              (this.currentGridBounds.z * 0.5) - 0.5
-          );
-
-          this.controls.update();
-      }
-
-      /**
-       * @param {number} width
-       * @param {number} height
-       */
-      setSize(width, height) {
-        this.width = width
-        this.height = height
-
-        this.renderer.setSize(width, height)
-      }
-
-      animate() {
-        this.renderer.render( this.scene, this.camera );
-      }
+    animate() {
+      this.renderer.render(this.scene, this.camera);
+    }
   }
 
   onMount(() => {
