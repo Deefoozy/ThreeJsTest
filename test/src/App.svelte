@@ -191,17 +191,29 @@
     }
 
     setupCamera() {
+      const centerX = -0.5;
       const centerY = this.currentGridBounds.y * 0.5;
       const centerZ = (this.currentGridBounds.z * 0.5) - 0.5;
 
-      const camDistance = Math.ceil(Math.max(this.currentGridBounds.x * 2, this.currentGridBounds.y * 2, this.currentGridBounds.z) * 0.6)
-      console.log(camDistance)
-      this.camera.position.set(camDistance, centerY + camDistance, centerZ + camDistance)
+      // Probably not the best way to scale this. google some more.
+      const camDistance = Math.ceil(
+          Math.max(
+              this.currentGridBounds.x * 2,
+              this.currentGridBounds.y * 2,
+              this.currentGridBounds.z
+          ) * 0.6
+      )
+
+      this.camera.position.set(
+          centerX + camDistance,
+          centerY + camDistance,
+          centerZ + camDistance
+      );
 
       this.controls = new OrbitControls(this.camera, this.canvas);
 
       this.controls.target.set(
-          -0.5,
+          centerX,
           centerY,
           centerZ
       );
