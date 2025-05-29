@@ -6,16 +6,9 @@ import {Vector3} from "three";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls.js";
 
 /**
- * @typedef renderedGridInformation
- * @type {object}
- * @property {string} name
- * @property {Vector3} offset // Offsets determined by centering the grid. this is added to absolutePosition (doesn't make sense, Needs naming or logic fix)
- * @property {Vector3} absolutePosition // Grid position based on Grid offset added to Group position
- */
-
-/**
  * @property {ShipInfo} shipGridInformation
- * @property {renderedGridInformation[]} renderedGridInfo
+ * @property {ThreeJs.Material[]} materials
+ * @property {ThreeJs.BoxGeometry} boxGeometry
  * @property {HTMLElement} canvas
  * @property {ThreeJs.WebGLRenderer} renderer // Find parent class, would probably be a better fit
  * @property {ThreeJs.PerspectiveCamera} camera
@@ -27,7 +20,8 @@ import {OrbitControls} from "three/examples/jsm/controls/OrbitControls.js";
  */
 export default class ShipRenderer {
   shipGridInformation;
-  renderedGridInfo;
+  materials;
+  boxGeometry;
 
   canvas;
   renderer;
@@ -55,24 +49,36 @@ export default class ShipRenderer {
 
     this.width = width;
     this.height = height;
-
-    this.renderedGridInfo = [];
   }
 
   /**
    * @param {ShipInfo} shipGridInformation
    */
   start(shipGridInformation) {
+    this.createMaterials();
+    this.createBoxGeometry();
     this.setupLighting();
     this.setSize(this.width, this.height);
     this.setupCanvas();
 
+    this.setupControls()
+
+    this.loadGridInfo(shipGridInformation);
+
     this.renderer.setAnimationLoop(() => {
       this.animate()
     });
-    this.loadGridInfo(shipGridInformation);
+  }
 
-    this.setupCamera();
+  createBoxGeometry() {
+    this.boxGeometry = new ThreeJs.BoxGeometry(this.boxSize, this.boxSize, this.boxSize)
+  }
+
+  createMaterials() {
+    this.materials = [
+      new ThreeJs.MeshBasicMaterial({color: 0xaaaaff}),
+      new ThreeJs.MeshBasicMaterial({color: 0xffaaaa})
+    ];
   }
 
   /**
@@ -88,10 +94,11 @@ export default class ShipRenderer {
     }
 
     this.createModels();
+    this.setupCamera();
   }
 
   clearModels() {
-    console.error("NOT IMPLEMENTED")
+    this.scene.clear()
   }
 
   /**
@@ -151,21 +158,14 @@ export default class ShipRenderer {
         absolutePosition.add(group.position);
         absolutePosition.add(grid.offset);
 
-        // create grid obj
-        const gridInfo = {
-          name: grid.name,
-          offset: ShipRenderer.determineGridOffsetVector(grid),
-          absolutePosition: absolutePosition,
-          boxes: [],
-        };
+        const gridOffset = ShipRenderer.determineGridOffsetVector(grid)
 
         const boxAmt = grid.sizeX * grid.sizeY * grid.sizeZ;
         const layerBoxAmount = grid.sizeX * grid.sizeY;
 
         // loop through boxes and add to rGI object that was pushed
         for (let i = 0; i < boxAmt; ++i) {
-          const tempBox = new ThreeJs.BoxGeometry(this.boxSize, this.boxSize, this.boxSize);
-          const boxObject = new ThreeJs.Mesh(tempBox, new ThreeJs.MeshBasicMaterial({color: 0xaaffaa}));
+          const boxObject = new ThreeJs.Mesh(this.boxGeometry, this.materials[1]);
 
           const boxNumber = i + 1;
 
@@ -178,15 +178,11 @@ export default class ShipRenderer {
           const posZ = (Math.floor(i / layerBoxAmount));
 
           boxObject.position.set(posX, posY, posZ);
-          boxObject.position.add(gridInfo.absolutePosition);
-          boxObject.position.add(gridInfo.offset);
+          boxObject.position.add(absolutePosition);
+          boxObject.position.add(gridOffset);
 
           this.scene.add(boxObject);
-          gridInfo.boxes.push(boxObject);
         }
-
-        // push to rGI for later reference
-        this.renderedGridInfo.push(gridInfo)
       }
     );
   }
@@ -221,14 +217,17 @@ export default class ShipRenderer {
       centerZ + camDistance
     );
 
-    this.controls = new OrbitControls(this.camera, this.canvas);
-
     this.controls.target.set(
       centerX,
       centerY,
       centerZ
     );
 
+    this.controls.update();
+  }
+
+  setupControls() {
+    this.controls = new OrbitControls(this.camera, this.canvas);
     this.controls.update();
   }
 

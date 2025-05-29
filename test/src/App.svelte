@@ -3,14 +3,9 @@
   import * as ThreeJs from 'three';
 
   import ShipInfo from "./classes/shipInfo.js";
-  import FileLoader from "./classes/fileLoader.js";
   import ShipRenderer from "./classes/shipRenderer.js";
-
-  const ship = new ShipInfo(
-    JSON.parse(
-      FileLoader.loadFromFS("NOT IMPLEMENTED")
-    )
-  )
+  import {resolveResource} from "@tauri-apps/api/path";
+  import {readTextFile} from "@tauri-apps/plugin-fs";
 
   const width = window.innerWidth;
   const height = window.innerHeight;
@@ -29,7 +24,72 @@
       height
     );
 
-    shipRenderer.start(ship)
+    /**
+     * @type {ShipInfo}
+     */
+    let ship;
+
+    const resourcePrefix = "resources/ship_manufacturers/";
+
+    const ships = [
+      "drake/caterpillar",
+      "drake/corsair",
+      "drake/cutlassBlack",
+      "drake/cutlassBlue",
+      "drake/cutlassRed",
+      "drake/cutter",
+      "drake/cutterRambler",
+      "drake/cutterScout",
+      "drake/vulture",
+    ]
+
+    /**
+     * @param {string} shipFile
+     */
+    function getShipLayout(shipFile) {
+      // Yes, I hate this.
+      resolveResource(resourcePrefix + shipFile + ".json").then(
+        (value) => {
+          readTextFile(value).then(
+            (value) => {
+              ship = new ShipInfo(
+                JSON.parse(value)
+              )
+
+              shipRenderer.loadGridInfo(ship, true)
+            }
+          )
+        }
+      )
+    }
+
+    // Yes, I hate this.
+    resolveResource(resourcePrefix + ships[0] + ".json").then(
+      (value) => {
+        readTextFile(value).then(
+          (value) => {
+            ship = new ShipInfo(
+              JSON.parse(value)
+            )
+
+            shipRenderer.start(ship)
+          }
+        )
+      }
+    )
+
+    let shipIndex = 0;
+    setInterval(
+      () => {
+        getShipLayout(ships[shipIndex]);
+
+        ++shipIndex
+
+        if (shipIndex > ships.length) {
+          shipIndex = 0;
+        }
+      }, 5000
+    )
   })
 </script>
 

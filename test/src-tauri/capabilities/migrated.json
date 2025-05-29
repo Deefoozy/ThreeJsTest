@@ -8,22 +8,15 @@
   "permissions": [
     "core:default",
     "fs:allow-read-file",
-    "fs:allow-write-file",
-    "fs:allow-read-dir",
-    "fs:allow-copy-file",
-    "fs:allow-mkdir",
-    "fs:allow-remove",
-    "fs:allow-remove",
-    "fs:allow-rename",
-    "fs:allow-exists",
+    "fs:allow-read-text-file",
+    "fs:allow-resource-read-recursive",
     {
       "identifier": "fs:scope",
       "allow": [
-        "$HOME/Documents/FinanceManager"
+        "$RESOURCE/resources"
       ]
     },
     "shell:allow-open",
-    "fs:default",
     "fs:default"
   ]
 }

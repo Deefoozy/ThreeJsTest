@@ -1,11 +1,9 @@
+import {resolveResource} from "@tauri-apps/api/path";
+
+import {exists, readTextFile} from "@tauri-apps/plugin-fs";
+
 export default class FileLoader {
-  /**
-   *
-   * @param {string} file
-   * @returns {string}
-   */
-  static loadFromFS(file) {
-    console.warn("FS load not fully implemented yet.")
+  static loadTestData(file) {
     return `{
       "shipName": "Caterpillar",
       "hangarSize": "Large",
