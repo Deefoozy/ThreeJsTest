@@ -1,0 +1,27 @@
+{
+  "shipName": "Cutlass Red",
+  "hangarSize": "Medium",
+  "cargoSize": 12,
+  "gridInfo": [
+    {
+      "name": "Entry hold",
+      "grids": [
+        {
+          "name": "Starboard grid",
+          "offsetX": 4,
+          "centerX": true,
+          "sizeX": 1,
+          "sizeY": 2,
+          "sizeZ": 3
+        },
+        {
+          "name": "Port grid",
+          "centerX": true,
+          "sizeX": 1,
+          "sizeY": 2,
+          "sizeZ": 3
+        }
+      ]
+    }
+  ]
+}

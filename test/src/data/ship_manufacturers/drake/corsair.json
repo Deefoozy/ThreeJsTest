@@ -1,0 +1,18 @@
+{
+  "shipName": "Corsair",
+  "hangarSize": "Medium",
+  "cargoSize": 72,
+  "gridInfo": [
+    {
+      "name": "Main hold",
+      "grids": [
+        {
+          "centerX": true,
+          "sizeX": 4,
+          "sizeY": 3,
+          "sizeZ": 6
+        }
+      ]
+    }
+  ]
+}

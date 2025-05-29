@@ -1,0 +1,18 @@
+{
+  "shipName": "Cutter Scout",
+  "hangarSize": "Small",
+  "cargoSize": 4,
+  "gridInfo": [
+    {
+      "name": "Main hold",
+      "grids": [
+        {
+          "centerX": true,
+          "sizeX": 1,
+          "sizeY": 2,
+          "sizeZ": 1
+        }
+      ]
+    }
+  ]
+}

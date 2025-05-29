@@ -1,0 +1,26 @@
+{
+  "shipName": "Cutlass Black",
+  "hangarSize": "Medium",
+  "cargoSize": 46,
+  "gridInfo": [
+    {
+      "name": "Main hold",
+      "grids": [
+        {
+          "offsetZ": 4,
+          "centerX": true,
+          "sizeX": 4,
+          "sizeY": 2,
+          "sizeZ": 5
+        },
+        {
+          "name": "Dropseat Grid",
+          "centerX": true,
+          "sizeX": 1,
+          "sizeY": 2,
+          "sizeZ": 3
+        }
+      ]
+    }
+  ]
+}
