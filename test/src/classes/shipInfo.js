@@ -4,6 +4,12 @@ import "../types/jsonGrids.js"
 import {Vector3} from "three";
 
 /**
+ * @callback GridIterationCallback
+ * @param {Grid} grid
+ * @param {GridGroup} group
+ */
+
+/**
  * @description A class containing some metadata and grid information on a ship.
  * @property {string} shipName
  * @property {string} hangarSize
@@ -23,6 +29,19 @@ export default class ShipInfo {
     this.cargoSize = parsedJson.cargoSize;
     this.canLand = parsedJson.canLand == null ? true : parsedJson.canLand;
     this.gridInfo = ShipInfo.parseJsonGridGroups(parsedJson.gridInfo)
+  }
+
+  /**
+   * @param {GridIterationCallback} callback
+   */
+  iterateOverAllGrids(callback) {
+    for (let groupIndex = 0, groupLength = this.gridInfo.length; groupIndex < groupLength; ++ groupIndex) {
+      const currentGridGroup = this.gridInfo[groupIndex];
+
+      for (let gridIndex = 0, gridLength = currentGridGroup.grids.length; gridIndex < gridLength; ++gridIndex) {
+        callback(currentGridGroup.grids[gridIndex], currentGridGroup)
+      }
+    }
   }
 
   /**

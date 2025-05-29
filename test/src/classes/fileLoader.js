@@ -16,25 +16,21 @@ export default class FileLoader {
           "grids": [
             {
               "name": "Main grid",
-              "offsetX": 1,
               "offsetZ": 1,
-              "centerX": true,
               "sizeX": 6,
               "sizeY": 4,
               "sizeZ": 4
             },
             {
               "name": "Port grid",
+              "offsetX": 6,
               "offsetZ": 1,
-              "centerX": true,
               "sizeX": 1,
               "sizeY": 2,
               "sizeZ": 4
             },
             {
               "name": "Back grid",
-              "offsetX": 2,
-              "centerX": true,
               "sizeX": 5,
               "sizeY": 4,
               "sizeZ": 1
@@ -46,27 +42,23 @@ export default class FileLoader {
           "name": "2nd section",
           "positionZ": 6,
           "grids": [
-            {
+                        {
               "name": "Main grid",
-              "offsetX": 1,
               "offsetZ": 1,
-              "centerX": true,
               "sizeX": 6,
               "sizeY": 4,
               "sizeZ": 4
             },
             {
               "name": "Port grid",
+              "offsetX": 6,
               "offsetZ": 1,
-              "centerX": true,
               "sizeX": 1,
               "sizeY": 2,
               "sizeZ": 4
             },
             {
               "name": "Back grid",
-              "offsetX": 2,
-              "centerX": true,
               "sizeX": 5,
               "sizeY": 4,
               "sizeZ": 1
@@ -78,27 +70,23 @@ export default class FileLoader {
           "name": "3rd section",
           "positionZ": 12,
           "grids": [
-            {
+                        {
               "name": "Main grid",
-              "offsetX": 1,
               "offsetZ": 1,
-              "centerX": true,
               "sizeX": 6,
               "sizeY": 4,
               "sizeZ": 4
             },
             {
               "name": "Port grid",
+              "offsetX": 6,
               "offsetZ": 1,
-              "centerX": true,
               "sizeX": 1,
               "sizeY": 2,
               "sizeZ": 4
             },
             {
               "name": "Back grid",
-              "offsetX": 2,
-              "centerX": true,
               "sizeX": 5,
               "sizeY": 4,
               "sizeZ": 1
@@ -110,27 +98,23 @@ export default class FileLoader {
           "name": "4th section",
           "positionZ": 18,
           "grids": [
-            {
+                        {
               "name": "Main grid",
-              "offsetX": 1,
               "offsetZ": 1,
-              "centerX": true,
               "sizeX": 6,
               "sizeY": 4,
               "sizeZ": 4
             },
             {
               "name": "Port grid",
+              "offsetX": 6,
               "offsetZ": 1,
-              "centerX": true,
               "sizeX": 1,
               "sizeY": 2,
               "sizeZ": 4
             },
             {
               "name": "Back grid",
-              "offsetX": 2,
-              "centerX": true,
               "sizeX": 5,
               "sizeY": 4,
               "sizeZ": 1
@@ -140,11 +124,11 @@ export default class FileLoader {
 
         {
           "name": "Nose section",
+          "positionX": 2,
           "positionZ": 24,
           "grids": [
             {
               "name": "nose bottom grid",
-              "centerX": true,
               "sizeX": 5,
               "sizeY": 2,
               "sizeZ": 6
@@ -153,7 +137,6 @@ export default class FileLoader {
               "name": "nose top grid",
               "offsetY": 2,
               "offsetZ": 2,
-              "centerX": true,
               "sizeX": 5,
               "sizeY": 1,
               "sizeZ": 4
