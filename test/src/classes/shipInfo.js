@@ -1,5 +1,5 @@
 import "../types/grids.js"
-import "../types/json_grids.js"
+import "../types/jsonGrids.js"
 
 import {Vector3} from "three";
 

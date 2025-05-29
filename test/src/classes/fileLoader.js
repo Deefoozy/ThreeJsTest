@@ -1,0 +1,166 @@
+export default class FileLoader {
+  /**
+   *
+   * @param {string} file
+   * @returns {string}
+   */
+  static loadFromFS(file) {
+    console.warn("FS load not fully implemented yet.")
+    return `{
+      "shipName": "Caterpillar",
+      "hangarSize": "Large",
+      "cargoSize": 576,
+      "gridInfo": [
+        {
+          "name": "1st section",
+          "grids": [
+            {
+              "name": "Main grid",
+              "offsetX": 1,
+              "offsetZ": 1,
+              "centerX": true,
+              "sizeX": 6,
+              "sizeY": 4,
+              "sizeZ": 4
+            },
+            {
+              "name": "Port grid",
+              "offsetZ": 1,
+              "centerX": true,
+              "sizeX": 1,
+              "sizeY": 2,
+              "sizeZ": 4
+            },
+            {
+              "name": "Back grid",
+              "offsetX": 2,
+              "centerX": true,
+              "sizeX": 5,
+              "sizeY": 4,
+              "sizeZ": 1
+            }
+          ]
+        },
+
+        {
+          "name": "2nd section",
+          "positionZ": 6,
+          "grids": [
+            {
+              "name": "Main grid",
+              "offsetX": 1,
+              "offsetZ": 1,
+              "centerX": true,
+              "sizeX": 6,
+              "sizeY": 4,
+              "sizeZ": 4
+            },
+            {
+              "name": "Port grid",
+              "offsetZ": 1,
+              "centerX": true,
+              "sizeX": 1,
+              "sizeY": 2,
+              "sizeZ": 4
+            },
+            {
+              "name": "Back grid",
+              "offsetX": 2,
+              "centerX": true,
+              "sizeX": 5,
+              "sizeY": 4,
+              "sizeZ": 1
+            }
+          ]
+        },
+
+        {
+          "name": "3rd section",
+          "positionZ": 12,
+          "grids": [
+            {
+              "name": "Main grid",
+              "offsetX": 1,
+              "offsetZ": 1,
+              "centerX": true,
+              "sizeX": 6,
+              "sizeY": 4,
+              "sizeZ": 4
+            },
+            {
+              "name": "Port grid",
+              "offsetZ": 1,
+              "centerX": true,
+              "sizeX": 1,
+              "sizeY": 2,
+              "sizeZ": 4
+            },
+            {
+              "name": "Back grid",
+              "offsetX": 2,
+              "centerX": true,
+              "sizeX": 5,
+              "sizeY": 4,
+              "sizeZ": 1
+            }
+          ]
+        },
+
+        {
+          "name": "4th section",
+          "positionZ": 18,
+          "grids": [
+            {
+              "name": "Main grid",
+              "offsetX": 1,
+              "offsetZ": 1,
+              "centerX": true,
+              "sizeX": 6,
+              "sizeY": 4,
+              "sizeZ": 4
+            },
+            {
+              "name": "Port grid",
+              "offsetZ": 1,
+              "centerX": true,
+              "sizeX": 1,
+              "sizeY": 2,
+              "sizeZ": 4
+            },
+            {
+              "name": "Back grid",
+              "offsetX": 2,
+              "centerX": true,
+              "sizeX": 5,
+              "sizeY": 4,
+              "sizeZ": 1
+            }
+          ]
+        },
+
+        {
+          "name": "Nose section",
+          "positionZ": 24,
+          "grids": [
+            {
+              "name": "nose bottom grid",
+              "centerX": true,
+              "sizeX": 5,
+              "sizeY": 2,
+              "sizeZ": 6
+            },
+            {
+              "name": "nose top grid",
+              "offsetY": 2,
+              "offsetZ": 2,
+              "centerX": true,
+              "sizeX": 5,
+              "sizeY": 1,
+              "sizeZ": 4
+            }
+          ]
+        }
+      ]
+    }`
+  }
+}
