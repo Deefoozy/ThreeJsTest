@@ -110,10 +110,6 @@ export default class ShipRenderer {
     let offsetY = 0;
     let offsetZ = 0;
 
-    if (gridInformation.centerX && gridInformation.centerX === true) {
-      offsetX -= gridInformation.sizeX * 0.5;
-    }
-
     return new Vector3(offsetX, offsetY, offsetZ);
   }
 
@@ -134,9 +130,7 @@ export default class ShipRenderer {
         absolutePosition.add(grid.offset);
         absolutePosition.add(group.position);
 
-        const gridXSize = grid.centerX ? grid.sizeX * 0.5 : grid.sizeX;
-
-        const gridX = gridXSize + Math.abs(absolutePosition.x);
+        const gridX = grid.sizeX + Math.abs(absolutePosition.x);
         const gridY = grid.sizeY + Math.abs(absolutePosition.y);
         const gridZ = grid.sizeZ + Math.abs(absolutePosition.z);
 
@@ -198,7 +192,7 @@ export default class ShipRenderer {
   }
 
   setupCamera() {
-    const centerX = -0.5;
+    const centerX = (this.currentGridBounds.x * 0.5) - 0.5;
     const centerY = this.currentGridBounds.y * 0.5;
     const centerZ = (this.currentGridBounds.z * 0.5) - 0.5;
 

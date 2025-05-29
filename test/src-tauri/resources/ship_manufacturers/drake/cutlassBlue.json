@@ -9,14 +9,12 @@
         {
           "name": "Starboard grid",
           "offsetX": 4,
-          "centerX": true,
           "sizeX": 1,
           "sizeY": 2,
           "sizeZ": 3
         },
         {
           "name": "Port grid",
-          "centerX": true,
           "sizeX": 1,
           "sizeY": 2,
           "sizeZ": 3

@@ -8,14 +8,13 @@
       "grids": [
         {
           "offsetZ": 4,
-          "centerX": true,
           "sizeX": 4,
           "sizeY": 2,
           "sizeZ": 5
         },
         {
           "name": "Dropseat Grid",
-          "centerX": true,
+          "offsetX": 1.5,
           "sizeX": 1,
           "sizeY": 2,
           "sizeZ": 3

@@ -9,14 +9,12 @@
         {
           "name": "Front grid",
           "offsetZ": 2,
-          "centerX": true,
           "sizeX": 1,
           "sizeY": 2,
           "sizeZ": 1
         },
         {
           "name": "Back grid",
-          "centerX": true,
           "sizeX": 1,
           "sizeY": 2,
           "sizeZ": 1
