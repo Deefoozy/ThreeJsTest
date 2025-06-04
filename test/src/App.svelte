@@ -7,7 +7,7 @@
   import {resolveResource} from "@tauri-apps/api/path";
   import {readTextFile} from "@tauri-apps/plugin-fs";
 
-  const width = window.innerWidth;
+  const width = window.innerWidth * 0.5;
   const height = window.innerHeight;
 
   onMount(() => {
@@ -63,8 +63,10 @@
       )
     }
 
+    let shipIndex = 0;
+
     // Yes, I hate this.
-    resolveResource(resourcePrefix + ships[0] + ".json").then(
+    resolveResource(resourcePrefix + ships[shipIndex] + ".json").then(
       (value) => {
         readTextFile(value).then(
           (value) => {
@@ -73,19 +75,24 @@
             )
 
             shipRenderer.start(ship)
+
+            ++shipIndex
+
+            if (shipIndex >= ships.length) {
+              shipIndex = 0;
+            }
           }
         )
       }
     )
 
-    let shipIndex = 0;
     setInterval(
       () => {
         getShipLayout(ships[shipIndex]);
 
         ++shipIndex
 
-        if (shipIndex > ships.length) {
+        if (shipIndex >= ships.length) {
           shipIndex = 0;
         }
       }, 5000

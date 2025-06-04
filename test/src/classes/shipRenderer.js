@@ -159,8 +159,6 @@ export default class ShipRenderer {
 
         // loop through boxes and add to rGI object that was pushed
         for (let i = 0; i < boxAmt; ++i) {
-          const boxObject = new ThreeJs.Mesh(this.boxGeometry, this.materials[1]);
-
           const boxNumber = i + 1;
 
           // figure out box pos
@@ -170,6 +168,8 @@ export default class ShipRenderer {
           const posX = rawPosX < 0 ? grid.sizeX - 1 : rawPosX;
           const posY = (xRowsCompleted % grid.sizeY);
           const posZ = (Math.floor(i / layerBoxAmount));
+
+          const boxObject = new ThreeJs.Mesh(this.boxGeometry, this.materials[1]);
 
           boxObject.position.set(posX, posY, posZ);
           boxObject.position.add(absolutePosition);
@@ -193,7 +193,7 @@ export default class ShipRenderer {
 
   setupCamera() {
     const centerX = (this.currentGridBounds.x * 0.5) - 0.5;
-    const centerY = this.currentGridBounds.y * 0.5;
+    const centerY = (this.currentGridBounds.y * 0.5) - 0.5;
     const centerZ = (this.currentGridBounds.z * 0.5) - 0.5;
 
     // Probably not the best way to scale this. google some more.
