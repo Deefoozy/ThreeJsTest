@@ -1,4 +1,13 @@
 /**
+ * @typedef JsonMaterialInterpolationParameters
+ * @type {object}
+ * @property {?number} size // default should be interpreted as 2
+ * @property {?number} offsetX // default should be interpreted as 0
+ * @property {?number} offsetY // default should be interpreted as 0
+ * @property {?number} offsetZ // default should be interpreted as 0
+ */
+
+/**
  * @description An object that contains the json definition of a grid
  * @typedef JsonGrid
  * @type {object}
@@ -21,6 +30,7 @@
  * @property {?number} positionY // default should be interpreted as 0
  * @property {?number} positionZ // default should be interpreted as 0
  * @property {JsonGrid[]} grids
+ * @property {JsonMaterialInterpolationParameters} boxParams
  */
 
 /**

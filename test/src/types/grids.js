@@ -1,6 +1,15 @@
 import {Vector3} from "three";
 
 /**
+ * @typedef MaterialInterpolationParameters
+ * @type {object}
+ * @property {?number} size
+ * @property {?number} offsetX
+ * @property {?number} offsetY
+ * @property {?number} offsetZ
+ */
+
+/**
  * @description An object that contains the rendering parameters for the grid
  * @typedef Grid
  * @type {object}
@@ -19,4 +28,5 @@ import {Vector3} from "three";
  * @property {string} name
  * @property {Vector3} position
  * @property {Grid[]} grids
+ * @property {MaterialInterpolationParameters} boxParams
  */

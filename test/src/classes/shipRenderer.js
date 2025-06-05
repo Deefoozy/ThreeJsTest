@@ -168,6 +168,7 @@ export default class ShipRenderer {
           // perhaps it is an idea to create an object for each grid. refactor feed.
           positionVector3.add(grid.offset);
 
+          /** @type {MaterialInterpolationParameters} */
           const boxParams = group.boxParams ?? {};
 
           const boxObject = new ThreeJs.Mesh(
