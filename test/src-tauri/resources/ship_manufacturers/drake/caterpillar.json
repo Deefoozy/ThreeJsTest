@@ -5,6 +5,9 @@
   "gridInfo": [
     {
       "name": "1st section",
+      "boxParams": {
+        "offsetZ": 1
+      },
       "grids": [
         {
           "name": "Main grid",
@@ -33,6 +36,9 @@
     {
       "name": "2nd section",
       "positionZ": 6,
+      "boxParams": {
+        "offsetZ": 1
+      },
       "grids": [
         {
           "name": "Main grid",
@@ -61,6 +67,9 @@
     {
       "name": "3rd section",
       "positionZ": 12,
+      "boxParams": {
+        "offsetZ": 1
+      },
       "grids": [
         {
           "name": "Main grid",
@@ -89,6 +98,9 @@
     {
       "name": "4th section",
       "positionZ": 18,
+      "boxParams": {
+        "offsetZ": 1
+      },
       "grids": [
         {
           "name": "Main grid",

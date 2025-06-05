@@ -32,7 +32,7 @@ export default class ShipRenderer {
   height;
 
   currentGridBounds = null
-  boxSize = 0.5
+  boxSize = 0.9
 
   /**
    * @param {HTMLElement} parentElement
@@ -76,8 +76,8 @@ export default class ShipRenderer {
 
   createMaterials() {
     this.materials = [
-      new ThreeJs.MeshBasicMaterial({color: 0xaaaaff}),
-      new ThreeJs.MeshBasicMaterial({color: 0xffaaaa})
+      new ThreeJs.MeshBasicMaterial({color: 0x2222ff}),
+      new ThreeJs.MeshBasicMaterial({color: 0xff2222})
     ];
   }
 
@@ -146,12 +146,6 @@ export default class ShipRenderer {
   createModels() {
     this.shipGridInformation.iterateOverAllGrids(
       (grid, group) => {
-        const absolutePosition = new Vector3(0, 0, 0);
-
-        // perhaps it is an idea to create an object for each grid. refactor feed.
-        absolutePosition.add(group.position);
-        absolutePosition.add(grid.offset);
-
         const gridOffset = ShipRenderer.determineGridOffsetVector(grid)
 
         const boxAmt = grid.sizeX * grid.sizeY * grid.sizeZ;
@@ -169,16 +163,52 @@ export default class ShipRenderer {
           const posY = (xRowsCompleted % grid.sizeY);
           const posZ = (Math.floor(i / layerBoxAmount));
 
-          const boxObject = new ThreeJs.Mesh(this.boxGeometry, this.materials[1]);
+          const positionVector3 = new Vector3(posX, posY, posZ)
 
-          boxObject.position.set(posX, posY, posZ);
-          boxObject.position.add(absolutePosition);
-          boxObject.position.add(gridOffset);
+          // perhaps it is an idea to create an object for each grid. refactor feed.
+          positionVector3.add(grid.offset);
+
+          const boxParams = group.boxParams ?? {};
+
+          const boxObject = new ThreeJs.Mesh(
+            this.boxGeometry,
+            this.determineBlockMaterial(
+              boxParams.size ?? 2,
+              positionVector3.x,
+              positionVector3.y,
+              positionVector3.z,
+              this.materials,
+              boxParams.offsetX ?? 0,
+              boxParams.offsetY ?? 0,
+              boxParams.offsetZ ?? 0,
+            )
+          );
+
+          positionVector3.add(group.position);
+          positionVector3.add(gridOffset);
+          boxObject.position.add(positionVector3);
 
           this.scene.add(boxObject);
         }
       }
     );
+  }
+
+  determineBlockMaterial(cubeSize, posX, posY, posZ, materials, offsetX = 0, offsetY = 0, offsetZ = 0) {
+    // x | 0 is a bitwise operation which in this case converts the numbers into ints internally having the side effect of flooring the number.
+    // I should benchmark this against other options like Math.Floor
+    const posXTemp = ((posX + offsetX) / cubeSize) | 0;
+    const posYTemp = ((posY + offsetY) / cubeSize) | 0;
+    const posZTemp = ((posZ + offsetZ) / cubeSize) | 0;
+
+    // Determine if the rounded numbers are even or uneven, and using the Z axis modulo result as offset
+    const posZModulo = posZTemp % cubeSize;
+    const posXModulo = posXTemp % cubeSize;
+    const posYModulo = (posYTemp + posZModulo) % cubeSize;
+
+    const materialIndex = posXModulo === posYModulo ? 1 : 0
+
+    return materials[materialIndex]
   }
 
   setupCanvas() {
