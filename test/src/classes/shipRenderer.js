@@ -35,7 +35,7 @@ export default class ShipRenderer {
   boxSize = 0.9
 
   /**
-   * @param {HTMLElement} parentElement
+   * @param {Element} parentElement
    * @param {ThreeJs.WebGLRenderer} renderer
    * @param {ThreeJs.PerspectiveCamera} camera
    * @param {number} width

@@ -11,13 +11,13 @@
   const height = window.innerHeight;
 
   onMount(() => {
-    const canvasElement = document.getElementById("app_container")
+    const canvasElements = document.getElementsByClassName("camera_container")
     const renderer = new ThreeJs.WebGLRenderer();
     // const camera = new ThreeJs.OrthographicCamera(10, 10, 10, 10, 1, 100);
     const camera = new ThreeJs.PerspectiveCamera(80, width / height, 0.1, 1000);
 
     const shipRenderer = new ShipRenderer(
-      canvasElement,
+      canvasElements[0],
       renderer,
       camera,
       width,
@@ -100,7 +100,10 @@
   })
 </script>
 
-<main id="app_container"></main>
+<main id="app_container">
+  <div class="camera_container"></div>
+  <div class="camera_container"></div>
+</main>
 
 <style>
 </style>
