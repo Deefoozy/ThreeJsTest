@@ -3,6 +3,19 @@ body {
   margin: 0;
 }
 
+#app_container {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+}
+
+.camera_container {
+  padding: 0;
+  margin: 0;
+  max-height: 100vh;
+  max-width: 50vw;
+}
+
 :root {
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
   font-size: 16px;
