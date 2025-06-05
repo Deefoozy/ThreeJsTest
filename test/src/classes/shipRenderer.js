@@ -1,32 +1,31 @@
 import "../types/grids.js"
 import "../types/jsonGrids.js"
+import "../types/viewport.js"
 
 import * as ThreeJs from "three";
 import {Vector3} from "three";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls.js";
+import {CameraType} from "../types/viewport.js";
 
 /**
  * @property {ShipInfo} shipGridInformation
  * @property {ThreeJs.Material[]} materials
  * @property {ThreeJs.BoxGeometry} boxGeometry
- * @property {HTMLElement} canvas
- * @property {ThreeJs.WebGLRenderer} renderer // Find parent class, would probably be a better fit
- * @property {ThreeJs.PerspectiveCamera} camera
  * @property {ThreeJs.Scene} scene
  * @property {number} width
  * @property {number} height
  * @property {?Vector3} currentGridBounds
  * @property {number} boxSize
+ * @property {Viewport[]} viewports
+ * @property {OrbitControls} controls
  */
 export default class ShipRenderer {
   shipGridInformation;
   materials;
   boxGeometry;
 
-  canvas;
-  renderer;
-  camera;
   controls;
+  viewports;
 
   width;
   height;
@@ -35,16 +34,12 @@ export default class ShipRenderer {
   boxSize = 0.9
 
   /**
-   * @param {Element} parentElement
-   * @param {ThreeJs.WebGLRenderer} renderer
-   * @param {ThreeJs.PerspectiveCamera} camera
+   * @param {Viewport[]} viewports
    * @param {number} width
    * @param {number} height
    */
-  constructor(parentElement, renderer, camera,width, height) {
-    this.canvas = parentElement;
-    this.renderer = renderer;
-    this.camera = camera;
+  constructor(viewports, width, height) {
+    this.viewports = viewports;
     this.scene = new ThreeJs.Scene();
 
     this.width = width;
@@ -59,15 +54,9 @@ export default class ShipRenderer {
     this.createBoxGeometry();
     this.setupLighting();
     this.setSize(this.width, this.height);
-    this.setupCanvas();
-
-    this.setupControls()
+    this.setupViewports();
 
     this.loadGridInfo(shipGridInformation);
-
-    this.renderer.setAnimationLoop(() => {
-      this.animate()
-    });
   }
 
   createBoxGeometry() {
@@ -94,23 +83,12 @@ export default class ShipRenderer {
     }
 
     this.createModels();
-    this.setupCamera();
+
+    this.updateCameraPositions();
   }
 
   clearModels() {
     this.scene.clear()
-  }
-
-  /**
-   * @param {Grid} gridInformation
-   * @returns {Vector3}
-   */
-  static determineGridOffsetVector(gridInformation) { // should be renamed, something like internalOffset?
-    let offsetX = 0;
-    let offsetY = 0;
-    let offsetZ = 0;
-
-    return new Vector3(offsetX, offsetY, offsetZ);
   }
 
   /**
@@ -146,8 +124,6 @@ export default class ShipRenderer {
   createModels() {
     this.shipGridInformation.iterateOverAllGrids(
       (grid, group) => {
-        const gridOffset = ShipRenderer.determineGridOffsetVector(grid)
-
         const boxAmt = grid.sizeX * grid.sizeY * grid.sizeZ;
         const layerBoxAmount = grid.sizeX * grid.sizeY;
 
@@ -186,7 +162,6 @@ export default class ShipRenderer {
           );
 
           positionVector3.add(group.position);
-          positionVector3.add(gridOffset);
           boxObject.position.add(positionVector3);
 
           this.scene.add(boxObject);
@@ -212,8 +187,20 @@ export default class ShipRenderer {
     return materials[materialIndex]
   }
 
-  setupCanvas() {
-    this.canvas.appendChild(this.renderer.domElement)
+  setupViewports() {
+    for (let i = 0, l = this.viewports.length; i < l; ++i) {
+      const currentViewport = this.viewports[i];
+      const canvas = currentViewport.canvas;
+      const renderer = currentViewport.renderer;
+
+      canvas.appendChild(renderer.domElement)
+
+      this.setupControls(currentViewport);
+
+      renderer.setAnimationLoop(
+        this.buildAnimationCallback(currentViewport)
+      );
+    }
   }
 
   setupLighting() {
@@ -222,38 +209,65 @@ export default class ShipRenderer {
     this.scene.add(new ThreeJs.AmbientLight(color, intensity));
   }
 
-  setupCamera() {
+  updateCameraPositions() {
+    for (let i = 0, l = this.viewports.length; i < l; ++i) {
+      this.updateCameraPosition(this.viewports[i])
+    }
+  }
+
+  /**
+   * @param {Viewport} viewport
+   */
+  updateCameraPosition(viewport) {
     const centerX = (this.currentGridBounds.x * 0.5) - 0.5;
     const centerY = (this.currentGridBounds.y * 0.5) - 0.5;
     const centerZ = (this.currentGridBounds.z * 0.5) - 0.5;
 
-    // Probably not the best way to scale this. google some more.
-    const camDistance = Math.ceil(
-      Math.max(
-        this.currentGridBounds.x * 2,
-        this.currentGridBounds.y * 2,
-        this.currentGridBounds.z
-      ) * 0.6
-    )
+    let camDistance;
+    // Camera distance setting needs some adjustments for consistency
+    switch (viewport.cameraType) {
+      case CameraType.PERSPECTIVE:
+        camDistance = Math.ceil(
+          Math.max(
+            this.currentGridBounds.x * 2,
+            this.currentGridBounds.y * 2,
+            this.currentGridBounds.z
+          ) * 0.6
+        )
+        break;
+      case CameraType.ORTHOGRAPHIC:
+        camDistance = Math.max(
+          this.currentGridBounds.x,
+          this.currentGridBounds.y,
+          this.currentGridBounds.z
+        ) + 5;
+        break;
+    }
 
-    this.camera.position.set(
-      centerX + camDistance,
-      centerY + camDistance,
-      centerZ + camDistance
-    );
+    const camDistanceVector = new Vector3(camDistance, camDistance, camDistance)
+    camDistanceVector.multiply(viewport.cameraPosition)
 
-    this.controls.target.set(
-      centerX,
-      centerY,
-      centerZ
-    );
+    viewport.camera.position.set(centerX, centerY, centerZ);
+    viewport.camera.position.add(camDistanceVector)
 
-    this.controls.update();
+    if (viewport.useControls) {
+      console.log("using controls")
+
+      viewport.controls.target.set(centerX, centerY, centerZ);
+
+      viewport.controls.update();
+    }
   }
 
-  setupControls() {
-    this.controls = new OrbitControls(this.camera, this.canvas);
-    this.controls.update();
+  /**
+   * @param {Viewport} viewport
+   */
+  setupControls(viewport) {
+    if (viewport.useControls) {
+      console.log("setting up controls")
+      viewport.controls = new OrbitControls(viewport.camera, viewport.canvas);
+      viewport.controls.update();
+    }
   }
 
   /**
@@ -264,10 +278,18 @@ export default class ShipRenderer {
     this.width = width
     this.height = height
 
-    this.renderer.setSize(width, height)
+    for (let i = 0, l = this.viewports.length; i < l; ++i) {
+      this.viewports[i].renderer.setSize(width, height)
+    }
   }
 
-  animate() {
-    this.renderer.render(this.scene, this.camera);
+  /**
+   * @param {Viewport} viewport
+   * @returns {function}
+   */
+  buildAnimationCallback(viewport) {
+    return () => {
+      viewport.renderer.render(this.scene, viewport.camera)
+    }
   }
 }

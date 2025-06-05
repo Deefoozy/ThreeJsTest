@@ -4,6 +4,7 @@
 
   import ShipInfo from "./classes/shipInfo.js";
   import ShipRenderer from "./classes/shipRenderer.js";
+  import {CameraType, CameraPosition} from "./types/viewport.js";
   import {resolveResource} from "@tauri-apps/api/path";
   import {readTextFile} from "@tauri-apps/plugin-fs";
 
@@ -12,14 +13,28 @@
 
   onMount(() => {
     const canvasElements = document.getElementsByClassName("camera_container")
-    const renderer = new ThreeJs.WebGLRenderer();
-    // const camera = new ThreeJs.OrthographicCamera(10, 10, 10, 10, 1, 100);
-    const camera = new ThreeJs.PerspectiveCamera(80, width / height, 0.1, 1000);
+
+    const viewports = [
+      {
+        camera: new ThreeJs.PerspectiveCamera(80, width / height, 0.1, 1000),
+        cameraType: CameraType.PERSPECTIVE,
+        cameraPosition: CameraPosition.EQUAL,
+        canvas: canvasElements[0],
+        renderer: new ThreeJs.WebGLRenderer(),
+        useControls: true,
+      },
+      {
+        camera: new ThreeJs.PerspectiveCamera(80, width / height, 0.1, 1000),
+        cameraType: CameraType.PERSPECTIVE,
+        cameraPosition: CameraPosition.TOP,
+        canvas: canvasElements[1],
+        renderer: new ThreeJs.WebGLRenderer(),
+        useControls: true,
+      },
+    ]
 
     const shipRenderer = new ShipRenderer(
-      canvasElements[0],
-      renderer,
-      camera,
+      viewports,
       width,
       height
     );
