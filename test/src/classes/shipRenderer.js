@@ -65,9 +65,14 @@ export default class ShipRenderer {
 
   createMaterials() {
     this.materials = [
-      new ThreeJs.MeshBasicMaterial({color: 0x2222ff}),
-      new ThreeJs.MeshBasicMaterial({color: 0xff2222})
+      new ThreeJs.MeshBasicMaterial({color: 0xffffff}),
+      new ThreeJs.MeshBasicMaterial({color: 0xaaaaaa})
     ];
+
+    // this.materials = [
+    //   new MeshNormalMaterial(),
+    //   new MeshNormalMaterial(),
+    // ]
   }
 
   /**

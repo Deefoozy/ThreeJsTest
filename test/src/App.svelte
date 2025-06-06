@@ -14,9 +14,12 @@
   onMount(() => {
     const canvasElements = document.getElementsByClassName("camera_container")
 
+    const aspect = width / height;
+    const orthoSize = 20;
+
     const viewports = [
       {
-        camera: new ThreeJs.PerspectiveCamera(80, width / height, 0.1, 1000),
+        camera: new ThreeJs.PerspectiveCamera(80, aspect, 0.1, 1000),
         cameraType: CameraType.PERSPECTIVE,
         cameraPosition: CameraPosition.EQUAL,
         canvas: canvasElements[0],
@@ -24,8 +27,8 @@
         useControls: true,
       },
       {
-        camera: new ThreeJs.PerspectiveCamera(80, width / height, 0.1, 1000),
-        cameraType: CameraType.PERSPECTIVE,
+        camera: new ThreeJs.OrthographicCamera( orthoSize * aspect / -2, orthoSize * aspect / 2, orthoSize / 2, orthoSize / -2, 1, 1000),
+        cameraType: CameraType.ORTHOGRAPHIC,
         cameraPosition: CameraPosition.TOP,
         canvas: canvasElements[1],
         renderer: new ThreeJs.WebGLRenderer(),
