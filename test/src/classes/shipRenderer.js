@@ -5,7 +5,7 @@ import "../types/viewport.js"
 import * as ThreeJs from "three";
 import {Vector3} from "three";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls.js";
-import {CameraType} from "../types/viewport.js";
+import {CameraPosition, CameraType, getAxisByIndexes, returnZeroAxisIndexes} from "../types/viewport.js";
 
 /**
  * @property {ShipInfo} shipGridInformation
@@ -246,6 +246,27 @@ export default class ShipRenderer {
           this.currentGridBounds.y,
           this.currentGridBounds.z
         ) + 5;
+
+        let aspect = this.width / this.height
+
+        let OrthographicViewportSize = 20
+        if (viewport.cameraPosition !== CameraPosition.EQUAL) {
+          // Uses 0 values used in CameraPosition to determine relevant axes for size. will not work with CameraPosition.EQUAL
+          OrthographicViewportSize = Math.max(
+            ...getAxisByIndexes(
+              this.currentGridBounds,
+              returnZeroAxisIndexes(viewport.cameraPosition)
+            )
+          ) + 2
+        }
+
+        viewport.camera.left = OrthographicViewportSize * aspect / -2
+        viewport.camera.right = OrthographicViewportSize * aspect / 2
+        viewport.camera.top = OrthographicViewportSize / 2
+        viewport.camera.bottom = OrthographicViewportSize / -2
+
+        viewport.camera.updateProjectionMatrix()
+
         break;
     }
 

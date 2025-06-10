@@ -2,6 +2,35 @@ import {Camera, WebGLRenderer, Vector3} from "three";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls.js";
 
 /**
+ * @param {CameraPosition} cameraPosition
+ * @returns {number[]}
+ */
+export function returnZeroAxisIndexes(cameraPosition) {
+  const indexes = []
+
+  for (let i = 0, l = 3; i < l; ++i) {
+    if (cameraPosition.getComponent(i) === 0) indexes.push(i)
+  }
+
+  return indexes;
+}
+
+/**
+ * @param {Vector3} vector
+ * @param {number[]} indexes
+ * @returns {number[]}
+ */
+export function getAxisByIndexes(vector, indexes) {
+  const values = []
+
+  for (let i = 0, l = indexes.length; i < l; ++i) {
+    values.push(vector.getComponent(indexes[i]))
+  }
+
+  return values
+}
+
+/**
  * @readonly
  * @enum {number}
  */
