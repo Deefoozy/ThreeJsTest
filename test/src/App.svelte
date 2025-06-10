@@ -32,7 +32,7 @@
         cameraPosition: CameraPosition.TOP,
         canvas: canvasElements[1],
         renderer: new ThreeJs.WebGLRenderer(),
-        useControls: true,
+        useControls: false,
       },
     ]
 

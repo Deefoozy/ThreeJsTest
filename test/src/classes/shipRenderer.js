@@ -255,7 +255,7 @@ export default class ShipRenderer {
           OrthographicViewportSize = Math.max(
             ...getAxisByIndexes(
               this.currentGridBounds,
-              returnZeroAxisIndexes(viewport.cameraPosition)
+              returnZeroAxisIndexes(viewport.cameraPosition.position)
             )
           ) + 2
         }
@@ -271,7 +271,7 @@ export default class ShipRenderer {
     }
 
     const camDistanceVector = new Vector3(camDistance, camDistance, camDistance)
-    camDistanceVector.multiply(viewport.cameraPosition)
+    camDistanceVector.multiply(viewport.cameraPosition.position)
 
     viewport.camera.position.set(centerX, centerY, centerZ);
     viewport.camera.position.add(camDistanceVector)
@@ -282,6 +282,8 @@ export default class ShipRenderer {
       viewport.controls.target.set(centerX, centerY, centerZ);
 
       viewport.controls.update();
+    } else if (viewport.cameraPosition.rotation !== undefined) {
+      viewport.camera.rotation.copy(viewport.cameraPosition.rotation)
     }
   }
 

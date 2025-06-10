@@ -1,5 +1,7 @@
-import {Camera, WebGLRenderer, Vector3} from "three";
+import {Camera, WebGLRenderer, Vector3, Euler} from "three";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls.js";
+
+const radigrees = Math.PI / 180
 
 /**
  * @param {CameraPosition} cameraPosition
@@ -31,6 +33,12 @@ export function getAxisByIndexes(vector, indexes) {
 }
 
 /**
+ * @typedef CameraInformation
+ * @property {Vector3} position
+ * @property {Euler?} rotation
+ */
+
+/**
  * @readonly
  * @enum {number}
  */
@@ -41,13 +49,23 @@ export const CameraType = {
 
 /**
  * @readonly
- * @enum {Vector3}
+ * @enum {CameraInformation}
  */
 export const CameraPosition = {
-  FRONT: new Vector3(0,0,1),
-  SIDE: new Vector3(1,0,0),
-  TOP: new Vector3(0,1,0),
-  EQUAL: new Vector3(1,1,1),
+  FRONT: {
+    position: new Vector3(0, 0, 1),
+  },
+  SIDE: {
+    position: new Vector3(1, 0, 0),
+    rotation: new Euler(0, radigrees * 90, 0)
+  },
+  TOP: {
+    position: new Vector3(0, 1, 0),
+    rotation: new Euler(-(radigrees * 90), 0, 0)
+  },
+  EQUAL: {
+    position: new Vector3(1, 1, 1),
+  },
 }
 
 /**
