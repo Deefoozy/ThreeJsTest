@@ -21,6 +21,21 @@ body {
   width: 50%;
 }
 
+.camera_container-information_container {
+  position: relative;
+  z-index: 6969;
+  top: 0;
+  left: 0;
+  overflow: visible;
+  max-height: 0;
+}
+
+.camera_container-information {
+  z-index: 6970;
+  overflow: visible;
+  display: block;
+}
+
 :root {
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
   font-size: 16px;

@@ -82,6 +82,7 @@ export default class ShipRenderer {
 
     this.updateCameraPositions();
     this.setSize();
+    this.updateInformationTextElements()
   }
 
   clearModels() {
@@ -197,6 +198,38 @@ export default class ShipRenderer {
       renderer.setAnimationLoop(
         this.buildAnimationCallback(currentViewport)
       );
+    }
+  }
+
+  updateInformationTextElements() {
+    for (let i = 0, l = this.viewports.length; i < l; ++i) {
+      this.updateInformationText(this.viewports[i]);
+    }
+  }
+
+  updateInformationText(viewport) {
+    const textElements = viewport.canvas.getElementsByClassName("camera_container-information");
+
+    if (textElements.length > 0) {
+      const usedElement = textElements[0];
+
+      while (usedElement.firstChild) {
+        usedElement.removeChild(usedElement.lastChild)
+      }
+
+      let text = ""
+      if (viewport.mainCamera) {
+        text = `
+          ship name: ${this.shipGridInformation.shipName} | 
+          hangar size: ${this.shipGridInformation.hangarSize} | 
+          cargo size: ${this.shipGridInformation.cargoSize} | 
+          landable: ${this.shipGridInformation.canLand}
+        `;
+      } else {
+        text = viewport.name ?? ""
+      }
+
+      usedElement.appendChild(document.createTextNode(text));
     }
   }
 

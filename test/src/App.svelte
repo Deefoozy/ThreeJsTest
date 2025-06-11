@@ -17,8 +17,12 @@
     const aspect4 = canvasElements[3].getBoundingClientRect().width / canvasElements[3].getBoundingClientRect().height;
     const orthoSize = 20;
 
+    /**
+     * @type {Viewport[]}
+     */
     const viewports = [
       {
+        mainCamera: true,
         camera: new ThreeJs.PerspectiveCamera(80, aspect1, 0.1, 1000),
         cameraType: CameraType.PERSPECTIVE,
         cameraPosition: CameraPosition.EQUAL,
@@ -27,6 +31,7 @@
         useControls: true,
       },
       {
+        name: "Top ortho camera",
         camera: new ThreeJs.OrthographicCamera( orthoSize * aspect2 / -2, orthoSize * aspect2 / 2, orthoSize / 2, orthoSize / -2, 1, 1000),
         cameraType: CameraType.ORTHOGRAPHIC,
         cameraPosition: CameraPosition.TOP,
@@ -35,6 +40,7 @@
         useControls: false,
       },
       {
+        name: "Front ortho camera",
         camera: new ThreeJs.OrthographicCamera( orthoSize * aspect3 / -2, orthoSize * aspect3 / 2, orthoSize / 2, orthoSize / -2, 1, 1000),
         cameraType: CameraType.ORTHOGRAPHIC,
         cameraPosition: CameraPosition.FRONT,
@@ -43,6 +49,7 @@
         useControls: false,
       },
       {
+        name: "Side ortho camera",
         camera: new ThreeJs.OrthographicCamera( orthoSize * aspect4 / -2, orthoSize * aspect4 / 2, orthoSize / 2, orthoSize / -2, 1, 1000),
         cameraType: CameraType.ORTHOGRAPHIC,
         cameraPosition: CameraPosition.SIDE,
@@ -137,10 +144,26 @@
 </script>
 
 <main id="app_container">
-  <div class="camera_container"></div>
-  <div class="camera_container"></div>
-  <div class="camera_container"></div>
-  <div class="camera_container"></div>
+  <div class="camera_container">
+    <div class="camera_container-information_container">
+      <span class="camera_container-information"></span>
+    </div>
+  </div>
+  <div class="camera_container">
+    <div class="camera_container-information_container">
+      <span class="camera_container-information"></span>
+    </div>
+  </div>
+  <div class="camera_container">
+    <div class="camera_container-information_container">
+      <span class="camera_container-information"></span>
+    </div>
+  </div>
+  <div class="camera_container">
+    <div class="camera_container-information_container">
+      <span class="camera_container-information"></span>
+    </div>
+  </div>
 </main>
 
 <style>

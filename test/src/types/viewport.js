@@ -71,6 +71,8 @@ export const CameraPosition = {
 /**
  * @typedef Viewport
  * @type {object}
+ * @property {boolean?} mainCamera
+ * @property {string?} name
  * @property {Camera} camera
  * @property {?CameraType} cameraType // default should be interpreted as PERSPECTIVE
  * @property {CameraPosition} cameraPosition
