@@ -13,6 +13,8 @@
 
     const aspect1 = canvasElements[0].getBoundingClientRect().width / canvasElements[0].getBoundingClientRect().height;
     const aspect2 = canvasElements[1].getBoundingClientRect().width / canvasElements[1].getBoundingClientRect().height;
+    const aspect3 = canvasElements[2].getBoundingClientRect().width / canvasElements[2].getBoundingClientRect().height;
+    const aspect4 = canvasElements[3].getBoundingClientRect().width / canvasElements[3].getBoundingClientRect().height;
     const orthoSize = 20;
 
     const viewports = [
@@ -29,6 +31,22 @@
         cameraType: CameraType.ORTHOGRAPHIC,
         cameraPosition: CameraPosition.TOP,
         canvas: canvasElements[1],
+        renderer: new ThreeJs.WebGLRenderer(),
+        useControls: false,
+      },
+      {
+        camera: new ThreeJs.OrthographicCamera( orthoSize * aspect3 / -2, orthoSize * aspect3 / 2, orthoSize / 2, orthoSize / -2, 1, 1000),
+        cameraType: CameraType.ORTHOGRAPHIC,
+        cameraPosition: CameraPosition.FRONT,
+        canvas: canvasElements[2],
+        renderer: new ThreeJs.WebGLRenderer(),
+        useControls: false,
+      },
+      {
+        camera: new ThreeJs.OrthographicCamera( orthoSize * aspect4 / -2, orthoSize * aspect4 / 2, orthoSize / 2, orthoSize / -2, 1, 1000),
+        cameraType: CameraType.ORTHOGRAPHIC,
+        cameraPosition: CameraPosition.SIDE,
+        canvas: canvasElements[3],
         renderer: new ThreeJs.WebGLRenderer(),
         useControls: false,
       },
@@ -119,6 +137,8 @@
 </script>
 
 <main id="app_container">
+  <div class="camera_container"></div>
+  <div class="camera_container"></div>
   <div class="camera_container"></div>
   <div class="camera_container"></div>
 </main>
