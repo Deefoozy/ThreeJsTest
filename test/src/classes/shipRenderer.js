@@ -12,8 +12,6 @@ import {CameraPosition, CameraType, getAxisByIndexes, returnZeroAxisIndexes} fro
  * @property {ThreeJs.Material[]} materials
  * @property {ThreeJs.BoxGeometry} boxGeometry
  * @property {ThreeJs.Scene} scene
- * @property {number} width
- * @property {number} height
  * @property {?Vector3} currentGridBounds
  * @property {number} boxSize
  * @property {Viewport[]} viewports
@@ -27,23 +25,15 @@ export default class ShipRenderer {
   controls;
   viewports;
 
-  width;
-  height;
-
   currentGridBounds = null
   boxSize = 0.9
 
   /**
    * @param {Viewport[]} viewports
-   * @param {number} width
-   * @param {number} height
    */
-  constructor(viewports, width, height) {
+  constructor(viewports) {
     this.viewports = viewports;
     this.scene = new ThreeJs.Scene();
-
-    this.width = width;
-    this.height = height;
   }
 
   /**
@@ -53,10 +43,11 @@ export default class ShipRenderer {
     this.createMaterials();
     this.createBoxGeometry();
     this.setupLighting();
-    this.setSize(this.width, this.height);
     this.setupViewports();
 
     this.loadGridInfo(shipGridInformation);
+
+    this.setSize();
   }
 
   createBoxGeometry() {
@@ -90,6 +81,7 @@ export default class ShipRenderer {
     this.createModels();
 
     this.updateCameraPositions();
+    this.setSize();
   }
 
   clearModels() {
@@ -246,26 +238,9 @@ export default class ShipRenderer {
           this.currentGridBounds.y,
           this.currentGridBounds.z
         ) + 5;
+        let aspect = viewport.canvas.getBoundingClientRect().width / viewport.canvas.getBoundingClientRect().width
 
-        let aspect = this.width / this.height
-
-        let OrthographicViewportSize = 20
-        if (viewport.cameraPosition !== CameraPosition.EQUAL) {
-          // Uses 0 values used in CameraPosition to determine relevant axes for size. will not work with CameraPosition.EQUAL
-          OrthographicViewportSize = Math.max(
-            ...getAxisByIndexes(
-              this.currentGridBounds,
-              returnZeroAxisIndexes(viewport.cameraPosition.position)
-            )
-          ) + 2
-        }
-
-        viewport.camera.left = OrthographicViewportSize * aspect / -2
-        viewport.camera.right = OrthographicViewportSize * aspect / 2
-        viewport.camera.top = OrthographicViewportSize / 2
-        viewport.camera.bottom = OrthographicViewportSize / -2
-
-        viewport.camera.updateProjectionMatrix()
+        this.updateOrthoSize(viewport, aspect)
 
         break;
     }
@@ -298,17 +273,45 @@ export default class ShipRenderer {
     }
   }
 
-  /**
-   * @param {number} width
-   * @param {number} height
-   */
-  setSize(width, height) {
-    this.width = width
-    this.height = height
-
+  setSize() {
     for (let i = 0, l = this.viewports.length; i < l; ++i) {
-      this.viewports[i].renderer.setSize(width, height)
+      const width = this.viewports[i].canvas.getBoundingClientRect().width;
+      const height = this.viewports[i].canvas.getBoundingClientRect().height
+
+      console.log(width, height, width / height);
+
+      this.viewports[i].renderer.setSize(width, height);
+
+      switch (this.viewports[i].cameraType) {
+        case CameraType.ORTHOGRAPHIC:
+          this.updateOrthoSize(this.viewports[i], width / height)
+          break;
+        case CameraType.PERSPECTIVE:
+          this.viewports[i].camera.aspect = width / height
+          this.viewports[i].camera.updateProjectionMatrix()
+          break;
+      }
     }
+  }
+
+  updateOrthoSize(viewport, aspect) {
+    let orthographicViewportSize = 20
+    if (viewport.cameraPosition !== CameraPosition.EQUAL) {
+      // Uses 0 values used in CameraPosition to determine relevant axes for size. will not work with CameraPosition.EQUAL
+      orthographicViewportSize = Math.max(
+        ...getAxisByIndexes(
+          this.currentGridBounds,
+          returnZeroAxisIndexes(viewport.cameraPosition.position)
+        )
+      ) + 2
+    }
+
+    viewport.camera.left = orthographicViewportSize * aspect / -2
+    viewport.camera.right = orthographicViewportSize * aspect / 2
+    viewport.camera.top = orthographicViewportSize / 2
+    viewport.camera.bottom = orthographicViewportSize / -2
+
+    viewport.camera.updateProjectionMatrix()
   }
 
   /**

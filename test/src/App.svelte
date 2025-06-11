@@ -8,18 +8,16 @@
   import {resolveResource} from "@tauri-apps/api/path";
   import {readTextFile} from "@tauri-apps/plugin-fs";
 
-  const width = window.innerWidth * 0.5;
-  const height = window.innerHeight;
-
   onMount(() => {
     const canvasElements = document.getElementsByClassName("camera_container")
 
-    const aspect = width / height;
+    const aspect1 = canvasElements[0].getBoundingClientRect().width / canvasElements[0].getBoundingClientRect().height;
+    const aspect2 = canvasElements[1].getBoundingClientRect().width / canvasElements[1].getBoundingClientRect().height;
     const orthoSize = 20;
 
     const viewports = [
       {
-        camera: new ThreeJs.PerspectiveCamera(80, aspect, 0.1, 1000),
+        camera: new ThreeJs.PerspectiveCamera(80, aspect1, 0.1, 1000),
         cameraType: CameraType.PERSPECTIVE,
         cameraPosition: CameraPosition.EQUAL,
         canvas: canvasElements[0],
@@ -27,7 +25,7 @@
         useControls: true,
       },
       {
-        camera: new ThreeJs.OrthographicCamera( orthoSize * aspect / -2, orthoSize * aspect / 2, orthoSize / 2, orthoSize / -2, 1, 1000),
+        camera: new ThreeJs.OrthographicCamera( orthoSize * aspect2 / -2, orthoSize * aspect2 / 2, orthoSize / 2, orthoSize / -2, 1, 1000),
         cameraType: CameraType.ORTHOGRAPHIC,
         cameraPosition: CameraPosition.TOP,
         canvas: canvasElements[1],
@@ -37,9 +35,7 @@
     ]
 
     const shipRenderer = new ShipRenderer(
-      viewports,
-      width,
-      height
+      viewports
     );
 
     /**
@@ -115,6 +111,10 @@
         }
       }, 5000
     )
+
+    window.addEventListener("resize", (evt) => {
+      shipRenderer.setSize()
+    })
   })
 </script>
 
