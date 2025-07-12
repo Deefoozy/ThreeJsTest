@@ -1,0 +1,17 @@
+{
+  "shipName": "Raft",
+  "hangarSize": "Medium",
+  "cargoSize": 192,
+  "gridInfo": [
+    {
+      "name": "Main hold",
+      "grids": [
+        {
+          "sizeX": 8,
+          "sizeY": 4,
+          "sizeZ": 6
+        }
+      ]
+    }
+  ]
+}

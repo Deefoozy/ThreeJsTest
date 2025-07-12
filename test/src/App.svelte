@@ -71,6 +71,11 @@
     const resourcePrefix = "resources/ship_manufacturers/";
 
     const ships = [
+      "aegis/avengerTitan",
+      "anvil/asgard",
+      "argo/raft",
+      "crusader/C2Hercules",
+      "crusader/M2Hercules",
       "drake/caterpillar",
       "drake/corsair",
       "drake/cutlassBlack",

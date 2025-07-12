@@ -1,0 +1,145 @@
+{
+  "shipName": "Asgard",
+  "hangarSize": "Medium",
+  "cargoSize": 180,
+  "gridInfo": [
+    {
+      "name": "Main hold",
+      "grids": [
+        {
+          "sizeX": 5,
+          "sizeY": 4,
+          "sizeZ": 9
+        }
+      ]
+    }
+  ],
+  "shipLayout": {
+    "walkways": {
+      "paths": [
+        {
+          "id": 1,
+          "startPosition": {
+            "positionX": 0,
+            "positionY": 0,
+            "positionZ": 0
+          },
+          "endPosition": {
+            "positionX": 0,
+            "positionY": 0,
+            "positionZ": 5
+          },
+          "widthStart": 1,
+          "widthEnd": 1
+        }
+      ],
+      "traversalItem": [
+        {
+          "type": "ladder",
+          "height": 2,
+          "connects": [],
+          "position": {}
+        }
+      ]
+    },
+    "weaponry": {
+      "turrets": [
+        {
+          "loadoutReferenceId": 1,
+          "name": "Nose turret (pilot)",
+          "pilotOnly": true,
+          "remote": true,
+          "slaved": true,
+          "hardpoints": [
+            {
+              "loadoutReferenceId": 1,
+              "size": 4,
+              "type": "regular"
+            },
+            {
+              "loadoutReferenceId": 2,
+              "size": 4,
+              "type": "regular"
+            }
+          ]
+        },
+        {
+          "loadoutReferenceId": 2,
+          "name": "Bottom turret",
+          "pilotOnly": false,
+          "remote": false,
+          "slaved": false,
+          "hardpoints": [
+            {
+              "loadoutReferenceId": 1,
+              "size": 4,
+              "type": "regular"
+            },
+            {
+              "loadoutReferenceId": 2,
+              "size": 4,
+              "type": "regular"
+            }
+          ]
+        }
+      ]
+    },
+    "components": [
+      {
+        "loadoutReferenceId": 1,
+        "type": "shieldGenerator",
+        "size": 2
+      },
+      {
+        "loadoutReferenceId": 2,
+        "type": "shieldGenerator",
+        "size": 2
+      },
+      {
+        "loadoutReferenceId": 3,
+        "type": "shieldGenerator",
+        "size": 2
+      },
+      {
+        "type": "quantumDrive",
+        "size": 2
+      },
+      {
+        "loadoutReferenceId": 1,
+        "type": "Cooler",
+        "size": 2
+      },
+      {
+        "loadoutReferenceId": 2,
+        "type": "Cooler",
+        "size": 2
+      }
+    ],
+    "fuses": [
+      {
+        "name": "Main hold fuse",
+        "priority": 0,
+        "linkedSystems": []
+      },
+      {
+        "name": "Turret room fuse",
+        "priority": 0,
+        "linkedSystems": []
+      }
+    ],
+    "entrypoints": [
+      {
+        "name": "Main ramp",
+        "type": "ramp"
+      },
+      {
+        "name": "Minion door port",
+        "type": "door"
+      },
+      {
+        "name": "Minion door starboard",
+        "type": "door"
+      }
+    ]
+  }
+}

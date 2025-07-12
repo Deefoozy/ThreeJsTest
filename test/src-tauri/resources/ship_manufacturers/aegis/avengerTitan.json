@@ -1,0 +1,17 @@
+{
+  "shipName": "Avenger Titan",
+  "hangarSize": "Small",
+  "cargoSize": 8,
+  "gridInfo": [
+    {
+      "name": "Main hold",
+      "grids": [
+        {
+          "sizeX": 2,
+          "sizeY": 1,
+          "sizeZ": 4
+        }
+      ]
+    }
+  ]
+}

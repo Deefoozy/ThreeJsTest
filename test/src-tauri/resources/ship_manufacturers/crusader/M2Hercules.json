@@ -1,0 +1,26 @@
+{
+  "shipName": "C2 Hercules",
+  "hangarSize": "Large",
+  "cargoSize": 522,
+  "gridInfo": [
+    {
+      "name": "Main hold",
+      "grids": [
+        {
+          "name": "Rear grid",
+          "sizeX": 8,
+          "sizeY": 3,
+          "sizeZ": 15
+        },
+        {
+          "name": "Nose grid",
+          "offsetX": 1,
+          "offsetZ": 17,
+          "sizeX": 6,
+          "sizeY": 3,
+          "sizeZ": 9
+        }
+      ]
+    }
+  ]
+}
