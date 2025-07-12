@@ -269,10 +269,6 @@ export default class ShipRenderer {
     const size = new Vector3();
     this.currentGridBounds.getSize(size);
 
-    const centerX = center.x;
-    const centerY = center.y;
-    const centerZ = center.z;
-
     let camDistance;
     // Camera distance setting needs some adjustments for consistency
     switch (viewport.cameraType) {
@@ -302,13 +298,13 @@ export default class ShipRenderer {
     const camDistanceVector = new Vector3(camDistance, camDistance, camDistance)
     camDistanceVector.multiply(viewport.cameraPosition.position)
 
-    viewport.camera.position.set(centerX, centerY, centerZ);
+    viewport.camera.position.set(center.x, center.y, center.z);
     viewport.camera.position.add(camDistanceVector)
 
     if (viewport.useControls) {
       console.log("using controls")
 
-      viewport.controls.target.set(centerX, centerY, centerZ);
+      viewport.controls.target.set(center.x, center.y, center.z);
 
       viewport.controls.update();
     } else if (viewport.cameraPosition.rotation !== undefined) {
