@@ -2,17 +2,19 @@ import "../types/grids.js"
 import "../types/jsonGrids.js"
 import "../types/viewport.js"
 
-import * as ThreeJs from "three";
-import {Vector3} from "three";
+import {Vector3, Group, Scene, BoxGeometry, Material, AmbientLight, MeshBasicMaterial, Mesh} from "three";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls.js";
 import {CameraPosition, CameraType, getAxisByIndexes, returnZeroAxisIndexes} from "../types/viewport.js";
 
+import {BoundingVectors} from "../types/dimensionalTypes.js"
+
 /**
  * @property {ShipInfo} shipGridInformation
- * @property {ThreeJs.Material[]} materials
- * @property {ThreeJs.BoxGeometry} boxGeometry
- * @property {ThreeJs.Scene} scene
- * @property {?Vector3} currentGridBounds
+ * @property {Material[]} materials
+ * @property {BoxGeometry} boxGeometry
+ * @property {Scene} scene
+ * @property {Group} gridCollection
+ * @property {?BoundingVectors} currentGridBounds
  * @property {number} boxSize
  * @property {Viewport[]} viewports
  * @property {OrbitControls} controls
@@ -33,16 +35,19 @@ export default class ShipRenderer {
    */
   constructor(viewports) {
     this.viewports = viewports;
-    this.scene = new ThreeJs.Scene();
+    this.scene = new Scene();
   }
 
   /**
    * @param {ShipInfo} shipGridInformation
    */
   start(shipGridInformation) {
+    this.gridCollection = new Group();
+    this.scene.add(this.gridCollection);
+
     this.createMaterials();
     this.createBoxGeometry();
-    this.setupLighting();
+    // this.setupLighting(); // Does not seem to be doing anything currently
     this.setupViewports();
 
     this.loadGridInfo(shipGridInformation);
@@ -51,13 +56,13 @@ export default class ShipRenderer {
   }
 
   createBoxGeometry() {
-    this.boxGeometry = new ThreeJs.BoxGeometry(this.boxSize, this.boxSize, this.boxSize)
+    this.boxGeometry = new BoxGeometry(this.boxSize, this.boxSize, this.boxSize)
   }
 
   createMaterials() {
     this.materials = [
-      new ThreeJs.MeshBasicMaterial({color: 0xffffff}),
-      new ThreeJs.MeshBasicMaterial({color: 0xaaaaaa})
+      new MeshBasicMaterial({color: 0xffffff}),
+      new MeshBasicMaterial({color: 0xaaaaaa})
     ];
 
     // this.materials = [
@@ -75,40 +80,47 @@ export default class ShipRenderer {
     this.currentGridBounds = ShipRenderer.determineMaxGridBounds(shipGridInformation);
 
     if (reRender) {
-      this.clearModels();
+      this.clearGrids();
     }
 
     this.createModels();
 
     this.updateCameraPositions();
     this.setSize();
-    this.updateInformationTextElements()
+    this.updateInformationTextElements();
   }
 
-  clearModels() {
-    this.scene.clear()
+  clearGrids() {
+    this.gridCollection.clear();
   }
 
   /**
    * @param {ShipInfo} shipGridInformation
-   * @return {Vector3}
+   * @return {BoundingVectors}
    */
   static determineMaxGridBounds(shipGridInformation) {
-    // This function does not take asymmetrical cargo grids into account!!
+    let minX = 0;
+    let minY = 0;
+    let minZ = 0;
+
     let maxX = 0;
     let maxY = 0;
     let maxZ = 0;
 
     shipGridInformation.iterateOverAllGrids(
-      (grid, group) => {
+      (grid, group, _) => {
         const absolutePosition = new Vector3(0,0,0);
 
         absolutePosition.add(grid.offset);
         absolutePosition.add(group.position);
 
-        const gridX = grid.sizeX + Math.abs(absolutePosition.x);
-        const gridY = grid.sizeY + Math.abs(absolutePosition.y);
-        const gridZ = grid.sizeZ + Math.abs(absolutePosition.z);
+        minX = absolutePosition.x < minX ? absolutePosition.x : minX;
+        minY = absolutePosition.y < minY ? absolutePosition.y : minY;
+        minZ = absolutePosition.z < minZ ? absolutePosition.z : minZ;
+
+        const gridX = grid.sizeX + absolutePosition.x;
+        const gridY = grid.sizeY + absolutePosition.y;
+        const gridZ = grid.sizeZ + absolutePosition.z;
 
         maxX = gridX > maxX ? gridX : maxX;
         maxY = gridY > maxY ? gridY : maxY;
@@ -116,12 +128,32 @@ export default class ShipRenderer {
       }
     );
 
-    return new Vector3(maxX, maxY, maxZ);
+    return new BoundingVectors(
+      new Vector3(maxX, maxY, maxZ),
+      new Vector3(minX, minY, minZ),
+    );
   }
 
   createModels() {
+    /**
+     * @type {Group[]}
+     */
+    let gridGroupCollections = [];
+    let currentGroupCollection = null;
+
     this.shipGridInformation.iterateOverAllGrids(
-      (grid, group) => {
+      (grid, group, indexes) => {
+        // When gridIndex === 0 we are on a new group, hence we create a new groupCollection to work with
+        if (indexes.gridIndex === 0) {
+          currentGroupCollection = new Group();
+
+          currentGroupCollection.position.add(group.position);
+          gridGroupCollections.push(currentGroupCollection);
+        }
+
+        const currentGridCollection = new Group();
+        currentGridCollection.position.add(grid.offset);
+
         const boxAmt = grid.sizeX * grid.sizeY * grid.sizeZ;
         const layerBoxAmount = grid.sizeX * grid.sizeY;
 
@@ -137,21 +169,18 @@ export default class ShipRenderer {
           const posY = (xRowsCompleted % grid.sizeY);
           const posZ = (Math.floor(i / layerBoxAmount));
 
-          const positionVector3 = new Vector3(posX, posY, posZ)
-
-          // perhaps it is an idea to create an object for each grid. refactor feed.
-          positionVector3.add(grid.offset);
+          const boxPosition = new Vector3(posX, posY, posZ);
 
           /** @type {MaterialInterpolationParameters} */
           const boxParams = group.boxParams ?? {};
 
-          const boxObject = new ThreeJs.Mesh(
+          const boxObject = new Mesh(
             this.boxGeometry,
             this.determineBlockMaterial(
               boxParams.size ?? 2,
-              positionVector3.x,
-              positionVector3.y,
-              positionVector3.z,
+              boxPosition.x,
+              boxPosition.y,
+              boxPosition.z,
               this.materials,
               boxParams.offsetX ?? 0,
               boxParams.offsetY ?? 0,
@@ -159,13 +188,18 @@ export default class ShipRenderer {
             )
           );
 
-          positionVector3.add(group.position);
-          boxObject.position.add(positionVector3);
+          boxObject.position.add(boxPosition);
 
-          this.scene.add(boxObject);
+          currentGridCollection.add(boxObject);
         }
+
+        currentGroupCollection.add(currentGridCollection);
       }
     );
+
+    for (let gridGroupIndex = 0, gridGroupLength = gridGroupCollections.length; gridGroupIndex < gridGroupLength; ++gridGroupIndex) {
+      this.gridCollection.add(gridGroupCollections[gridGroupIndex]);
+    }
   }
 
   determineBlockMaterial(cubeSize, posX, posY, posZ, materials, offsetX = 0, offsetY = 0, offsetZ = 0) {
@@ -217,7 +251,7 @@ export default class ShipRenderer {
         usedElement.removeChild(usedElement.lastChild)
       }
 
-      let text = ""
+      let text;
       if (viewport.mainCamera) {
         text = `
           ship name: ${this.shipGridInformation.shipName} | 
@@ -234,9 +268,9 @@ export default class ShipRenderer {
   }
 
   setupLighting() {
-    const color = 0xFFFFFF;
-    const intensity = 1;
-    this.scene.add(new ThreeJs.AmbientLight(color, intensity));
+    const color = 0xFF0000;
+    const intensity = 1000;
+    this.scene.add(new AmbientLight(color, intensity));
   }
 
   updateCameraPositions() {
@@ -249,9 +283,9 @@ export default class ShipRenderer {
    * @param {Viewport} viewport
    */
   updateCameraPosition(viewport) {
-    const centerX = (this.currentGridBounds.x * 0.5) - 0.5;
-    const centerY = (this.currentGridBounds.y * 0.5) - 0.5;
-    const centerZ = (this.currentGridBounds.z * 0.5) - 0.5;
+    const centerX = this.currentGridBounds.center.x - 0.5;
+    const centerY = this.currentGridBounds.center.y - 0.5;
+    const centerZ = this.currentGridBounds.center.z - 0.5;
 
     let camDistance;
     // Camera distance setting needs some adjustments for consistency
@@ -259,17 +293,18 @@ export default class ShipRenderer {
       case CameraType.PERSPECTIVE:
         camDistance = Math.ceil(
           Math.max(
-            this.currentGridBounds.x * 2,
-            this.currentGridBounds.y * 2,
-            this.currentGridBounds.z
+            this.currentGridBounds.size.x * 4,
+            this.currentGridBounds.size.y * 4,
+            this.currentGridBounds.size.z
           ) * 0.6
         )
+
         break;
       case CameraType.ORTHOGRAPHIC:
         camDistance = Math.max(
-          this.currentGridBounds.x,
-          this.currentGridBounds.y,
-          this.currentGridBounds.z
+          this.currentGridBounds.size.x,
+          this.currentGridBounds.size.y,
+          this.currentGridBounds.size.z
         ) + 5;
         let aspect = viewport.canvas.getBoundingClientRect().width / viewport.canvas.getBoundingClientRect().width
 
@@ -311,8 +346,6 @@ export default class ShipRenderer {
       const width = this.viewports[i].canvas.getBoundingClientRect().width;
       const height = this.viewports[i].canvas.getBoundingClientRect().height
 
-      console.log(width, height, width / height);
-
       this.viewports[i].renderer.setSize(width, height);
 
       switch (this.viewports[i].cameraType) {
@@ -333,7 +366,7 @@ export default class ShipRenderer {
       // Uses 0 values used in CameraPosition to determine relevant axes for size. will not work with CameraPosition.EQUAL
       orthographicViewportSize = Math.max(
         ...getAxisByIndexes(
-          this.currentGridBounds,
+          this.currentGridBounds.size,
           returnZeroAxisIndexes(viewport.cameraPosition.position)
         )
       ) + 2

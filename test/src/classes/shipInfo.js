@@ -3,10 +3,19 @@ import "../types/jsonGrids.js"
 
 import {Vector3} from "three";
 
+
+/**
+ * @typedef GridIterationIndexes
+ * @type {object}
+ * @property {number} gridIndex
+ * @property {number} groupIndex
+ */
+
 /**
  * @callback GridIterationCallback
  * @param {Grid} grid
  * @param {GridGroup} group
+ * @param {GridIterationIndexes} indexes
  */
 
 /**
@@ -35,11 +44,15 @@ export default class ShipInfo {
    * @param {GridIterationCallback} callback
    */
   iterateOverAllGrids(callback) {
-    for (let groupIndex = 0, groupLength = this.gridInfo.length; groupIndex < groupLength; ++ groupIndex) {
-      const currentGridGroup = this.gridInfo[groupIndex];
+    const indexObj = {groupIndex: 0, gridIndex: 0};
 
-      for (let gridIndex = 0, gridLength = currentGridGroup.grids.length; gridIndex < gridLength; ++gridIndex) {
-        callback(currentGridGroup.grids[gridIndex], currentGridGroup)
+    for (let groupLength = this.gridInfo.length; indexObj.groupIndex < groupLength; ++ indexObj.groupIndex) {
+      const currentGridGroup = this.gridInfo[indexObj.groupIndex];
+
+      indexObj.gridIndex = 0;
+
+      for (let gridLength = currentGridGroup.grids.length; indexObj.gridIndex < gridLength; ++indexObj.gridIndex) {
+        callback(currentGridGroup.grids[indexObj.gridIndex], currentGridGroup, indexObj)
       }
     }
   }
