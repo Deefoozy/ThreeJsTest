@@ -81,8 +81,8 @@ export default class ShipRenderer {
     }
 
     this.createModels();
-    this.updateGridBox();
 
+    this.updateGridBox();
     this.updateCameraPositions();
     this.setSize();
     this.updateInformationTextElements();
@@ -164,6 +164,22 @@ export default class ShipRenderer {
     for (let gridObject3DIndex = 0, gridObject3DLength = gridObject3DCollections.length; gridObject3DIndex < gridObject3DLength; ++gridObject3DIndex) {
       this.gridCollection.add(gridObject3DCollections[gridObject3DIndex]);
     }
+
+    this.centerGricCollection();
+  }
+
+  centerGricCollection() {
+    this.updateGridBox();
+
+    const tempSize = new Vector3();
+    this.currentGridBounds.getSize(tempSize);
+
+    tempSize.multiply(new Vector3(-0.5, -0.5, -0.5));
+    tempSize.round()
+    tempSize.add(new Vector3(0.5, 0.5, 0.5))
+
+    this.gridCollection.position.set(0, 0, 0)
+    this.gridCollection.position.add(tempSize);
   }
 
   determineBlockMaterial(cubeSize, posX, posY, posZ, materials, offsetX = 0, offsetY = 0, offsetZ = 0) {
@@ -252,9 +268,6 @@ export default class ShipRenderer {
 
     const size = new Vector3();
     this.currentGridBounds.getSize(size);
-
-    console.warn(center)
-    console.warn(size)
 
     const centerX = center.x;
     const centerY = center.y;
